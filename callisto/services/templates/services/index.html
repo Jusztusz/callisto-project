@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        .services-list-div{
+            display: none;
+            width: 500px;
+            height: 300px;
+            border: 1px solid black;
+            overflow-y: scroll;
+        }
+        ul, li{
+            list-style: none;
+        }
+        .services-bottom{
+            width: 100%;
+            height: 30px;
+            background-color: aquamarine;
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            text-align: end;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <section class="main">
+        <button onclick="showAddServices()">Hozzáadás</button>
+        <script>
+            function showAddServices() {
+                var x = document.getElementById("services-list-div");
+                if (x.style.display === "block") {
+                  x.style.display = "none";
+                } else {
+                  x.style.display = "block";
+                }
+              }
+        </script>
+        <div class="services-list-div" id="services-list-div">
+            <h3>Telepített szolgáltatások</h3>
+            <input type="text" id="search" placeholder="Keresés a szolgáltatások között..." />
+            <ul class="services-list" id="services-list">
+
+            </ul>
+            <div class="services-bottom">
+                <button id="save-services-btn">Hozzáadás</button>
+            </div>
+        </div>
+
+        <div class="monitor">
+            <h2>Megfigyelt szolgáltatások</h2>
+            <div class="monitor-box">
+                
+            </div>
+        </div>
+    </section>
+    <script>
+        const socket = new WebSocket('ws://127.0.0.1:8000/ws/services/');
+
+        socket.onopen = function(event) {
+            console.log('WebSocket is connected.');
+            // Kérdezd le a szolgáltatásokat egyszer
+            socket.send(JSON.stringify({ action: 'get_services' }));
+        };
+
+        socket.onmessage = function(event) {
+            const response = JSON.parse(event.data);
+            console.log('Received:', response);
+
+            // Ellenőrizzük, hogy a services mező létezik
+            if (response.services) {
+                const servicesList = document.getElementById('services-list');
+                servicesList.innerHTML = ''; // Tisztítsd meg a meglévő listát
+
+                response.services.forEach(service => {
+                    const listItem = document.createElement('li');
+
+                    // Létrehozunk egy checkboxot
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = service.name;
+                    checkbox.value = service.name;
+
+                    // Hozzáadjuk a checkboxot és a szolgáltatás nevét a listához
+                    listItem.appendChild(checkbox);
+                    const label = document.createElement('label');
+                    label.htmlFor = service.name;
+                    label.textContent = `${service.name}: ${service.state}`;
+                    listItem.appendChild(label);
+
+                    servicesList.appendChild(listItem);
+                });
+            } else {
+                console.warn('No services received.');
+            }
+        };
+
+        socket.onclose = function(event) {
+            console.log('WebSocket is closed.');
+        };
+
+        // Kiválasztott szolgáltatások mentése
+        document.getElementById('save-services-btn').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('#services-list input[type="checkbox"]');
+            const chosenServices = [];
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    chosenServices.push(checkbox.value); // Csak a kiválasztott szolgáltatásokat mentjük
+                }
+            });
+
+            // Küldjük a kiválasztott szolgáltatásokat a szervernek
+            socket.send(JSON.stringify({ action: 'save_services', services: chosenServices }));
+        });
+
+        // Keresési funkció
+        document.getElementById('search').addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const listItems = document.querySelectorAll('#services-list li');
+
+            listItems.forEach(item => {
+                const label = item.querySelector('label');
+                if (label) {
+                    const text = label.textContent.toLowerCase();
+                    item.style.display = text.includes(filter) ? '' : 'none';
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

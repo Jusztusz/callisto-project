@@ -1,0 +1,21 @@
+<script>
+        const socket = new WebSocket('ws://127.0.0.1:8000/ws/services/');
+
+        socket.onopen = function(event) {
+            console.log('WebSocket is connected.');
+            // Kérdezd le a szolgáltatásokat
+            setInterval(() => {
+                socket.send(JSON.stringify({ action: 'get_services' }));
+            }, 5000); // Frissítés 5 másodpercenként
+        };
+        
+        socket.onmessage = function(event) {
+            const response = JSON.parse(event.data);
+            console.log('Received:', response);
+            // Itt frissítheted a UI-t a válasz adatok alapján
+        };
+        
+        socket.onclose = function(event) {
+            console.log('WebSocket is closed.');
+        };
+    </script>

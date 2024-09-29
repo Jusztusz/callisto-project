@@ -1,0 +1,5 @@
+python -m pip install Django
+python -m pip install -U 'channels[daphne]'
+python3 -m pip install channels_redis
+pip install websockets
+pip install websocket-client
