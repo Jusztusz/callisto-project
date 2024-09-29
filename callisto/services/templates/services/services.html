@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-[#020226]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .hero{
+            width: 100%;
+            height: 50px;
+            display: inline-flex;
+            border-bottom: 2px solid grey; 
+        }
+        .add-btn{
+            width: 150px;
+            height: 35px;
+            margin-top: 15px;
+        }
+        .services-list-div{
+            display: none;
+            width: 500px;
+            height: 300px;
+            border: 1px solid black;
+            overflow-y: scroll;
+        }
+        ul, li{
+            list-style: none;
+        }
+        .services-bottom{
+            width: 100%;
+            height: 30px;
+            background-color: aquamarine;
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            text-align: end;
+        }
+        .service-container{
+            width: 400px;
+            height: 100px;
+            background-color: black;
+            margin-right: 12px;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+        .service-name{
+
+        }
+        .service-status{
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .active{
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            width: 400px;
+        }
+        .inactive{
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            width: 400px;
+        }
+        .unknown{
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <section class="w-full bg-[#020226] text-[#fff] ">
+        {% include 'nav.html' %}
+        <div class="hero">
+            <a href="/">Vissza</a>
+            <h1>Szolgáltatás figyelés</h1>
+        </div>
+        <button onclick="showAddServices()" class="add-btn">Hozzáadás</button>
+        <script>
+            function showAddServices() {
+                var x = document.getElementById("services-list-div");
+                if (x.style.display === "block") {
+                  x.style.display = "none";
+                } else {
+                  x.style.display = "block";
+                }
+              }
+        </script>
+        <div class="services-list-div" id="services-list-div">
+            <h3>Telepített szolgáltatások</h3>
+            <input type="text" id="search" placeholder="Keresés a szolgáltatások között..." />
+            <ul class="services-list" id="services-list">
+
+            </ul>
+            <div class="services-bottom">
+                <button id="save-services-btn">Mentés</button>
+            </div>
+        </div>
+
+        <div class="monitor">
+            <h2>Megfigyelt szolgáltatások</h2>
+            <div class="w-full h-auto bg-green-200 flex flex-wrap justify-center" id="monitor-box">
+                
+            </div>
+        </div>
+    </section>
+    <script>
+        const socket = new WebSocket('ws://127.0.0.1:8000/ws/services/');
+
+        socket.onopen = function(event) {
+            console.log('WebSocket is connected.');
+            //Szolgáltatások lekérdezése
+            socket.send(JSON.stringify({ action: 'get_services' }));
+            socket.send(JSON.stringify({ action: 'get_service_statuses' }));
+            //Szeolgáltatás állapotok
+            setInterval(() => {
+                socket.send(JSON.stringify({ action: 'get_service_statuses' }));
+            }, 5000); // 5 másodpercenként
+        };
+        
+        socket.onmessage = function(event) {
+            const response = JSON.parse(event.data);
+            console.log('Received:', response);
+        
+            // Szolgáltatások listázása és megjelenítése
+            if (response.services) {
+                const servicesList = document.getElementById('services-list');
+                servicesList.innerHTML = ''; // Lista ürítése
+        
+                response.services.forEach(service => {
+                    const listItem = document.createElement('li');
+        
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = service.name;
+                    checkbox.value = service.name;
+
+                    const savedState = localStorage.getItem(service.name);
+                    if (savedState === 'true') {
+                        checkbox.checked = true; // Beállítjuk a checkboxot, ha korábban be volt pipálva
+                    }
+        
+                    // Hozzáadjuk a checkboxot és a szolgáltatás nevét a listához
+                    listItem.appendChild(checkbox);
+                    const label = document.createElement('label');
+                    label.htmlFor = service.name;
+                    label.textContent = `${service.name}`;
+                    listItem.appendChild(label);
+        
+                    servicesList.appendChild(listItem);
+                });
+            }
+        
+            // Szolgáltatások állapotainak megjelenítése
+            if (response.service_statuses) {
+                const monitorBox = document.getElementById('monitor-box');
+                monitorBox.innerHTML = ''; 
+        
+                response.service_statuses.forEach(status => {
+                    //Tartalmazza a szolgáltatás nevét és az állapotot
+                    const serviceContainer = document.createElement('div');
+                    serviceContainer.classList.add('service-container'); // CSS osztály a konténerhez
+            
+                    //Szolgáltatás neve
+                    const serviceNameDiv = document.createElement('div');
+                    serviceNameDiv.textContent = "Szolgáltatás: " + status.name;
+                    serviceNameDiv.classList.add('service-name'); // CSS osztály a névhez
+            
+                    //Állapot
+                    const serviceStatusDiv = document.createElement('div');
+                    serviceStatusDiv.textContent = "Állapot: " + status.status;
+                    serviceStatusDiv.classList.add('service-status'); // CSS osztály az állapothoz
+            
+                    //Állapot alapján CSS osztályok
+                    if (status.status === 'active') {
+                        serviceStatusDiv.classList.add('active');
+                    } else if (status.status === 'inactive') {
+                        serviceStatusDiv.classList.add('inactive');
+                    } else {
+                        serviceStatusDiv.classList.add('unknown');
+                    }
+            
+                    serviceContainer.appendChild(serviceNameDiv);
+                    serviceContainer.appendChild(serviceStatusDiv);
+            
+                    monitorBox.appendChild(serviceContainer);
+                });
+            }
+        };
+        
+        socket.onclose = function(event) {
+            console.log('WebSocket is closed.');
+        };
+        
+        // Kiválasztott szolgáltatások mentése
+        document.getElementById('save-services-btn').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('#services-list input[type="checkbox"]');
+            const chosenServices = [];
+        
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    chosenServices.push(checkbox.value); // Csak a kiválasztott szolgáltatásokat mentjük
+                    localStorage.setItem(checkbox.value, 'true'); // Mentjük, hogy pipálva volt
+                } else {
+                    localStorage.setItem(checkbox.value, 'false'); // Mentjük, hogy nincs pipálva
+                }
+            });
+        
+            // Küldjük a kiválasztott szolgáltatásokat a szervernek
+            socket.send(JSON.stringify({ action: 'save_services', services: chosenServices }));
+        });
+        
+        // Keresési funkció
+        document.getElementById('search').addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const listItems = document.querySelectorAll('#services-list li');
+        
+            listItems.forEach(item => {
+                const label = item.querySelector('label');
+                if (label) {
+                    const text = label.textContent.toLowerCase();
+                    item.style.display = text.includes(filter) ? '' : 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
