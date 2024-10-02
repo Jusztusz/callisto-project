@@ -20,7 +20,7 @@
             height: 35px;
             margin-top: 15px;
         }
-        .services-list-div{
+        #services-list-div{
             display: none;
             width: 500px;
             height: 300px;
@@ -39,40 +39,41 @@
             left: 0;
             text-align: end;
         }
-        .service-container{
-            width: 400px;
-            height: 100px;
-            background-color: black;
+        .choosen-system{
+            background-color: #25283e;
             margin-right: 12px;
-            margin-top: 5px;
-            border-radius: 5px;
+            margin-top: 24px;
+            border-radius: 12px;
+            width: 360px;
+            height: 180px;
         }
         .service-name{
-
+            padding-left: 5px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3b3c4d;
+            text-align: center;
+            font-weight: bolder;
+            align-items: center;
+            font-size: 18px;
+        }
+        .service-status-holder{
+            border-radius: 5px;
+            font-size: 18px;
+            text-align: center;
+            padding: 25px 0 25px 0;
+            width: 100%;
         }
         .service-status{
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            font-size: 14px;
+            width: 150px;
+            margin: 0 auto;
+            border-radius: 12px;
         }
         .active{
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            width: 400px;
-        }
-        .inactive{
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            width: 400px;
-        }
-        .unknown{
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-            width: 400px;
+            border: 1.5px solid #0a8a01;
+            background-color: #20f9114f;
+            padding: 10px;
+            color: #15ff04;
         }
     </style>
 </head>
@@ -91,10 +92,12 @@
                   x.style.display = "none";
                 } else {
                   x.style.display = "block";
+                  x.style.zIndex = 10;
+                  x.style.position = "absolute";
                 }
               }
         </script>
-        <div class="services-list-div" id="services-list-div">
+        <div class="" id="services-list-div">
             <h3>Telepített szolgáltatások</h3>
             <input type="text" id="search" placeholder="Keresés a szolgáltatások között..." />
             <ul class="services-list" id="services-list">
@@ -104,14 +107,15 @@
                 <button id="save-services-btn">Mentés</button>
             </div>
         </div>
-
-        <div class="monitor">
-            <h2>Megfigyelt szolgáltatások</h2>
-            <div class="w-full h-auto bg-green-200 flex flex-wrap justify-center" id="monitor-box">
-                
+            <div class="h-auto flex flex-wrap justify-center ">
+                <div class="w-[800px] min-h-[800px] flex flex-wrap justify-center bg-[#0f1233] rounded-3xl" id="monitor-box">
+    
+                </div>
             </div>
-        </div>
     </section>
+    <footer class="w-full h-[50px] bg-black mt-[24px]">
+
+    </footer>
     <script>
         const socket = new WebSocket('ws://127.0.0.1:8000/ws/services/');
 
@@ -162,24 +166,30 @@
             // Szolgáltatások állapotainak megjelenítése
             if (response.service_statuses) {
                 const monitorBox = document.getElementById('monitor-box');
-                monitorBox.innerHTML = ''; 
-        
-                response.service_statuses.forEach(status => {
-                    //Tartalmazza a szolgáltatás nevét és az állapotot
-                    const serviceContainer = document.createElement('div');
-                    serviceContainer.classList.add('service-container'); // CSS osztály a konténerhez
+                monitorBox.innerHTML = ''; // Tisztítsd meg a meglévő tartalmat
             
-                    //Szolgáltatás neve
+                response.service_statuses.forEach(status => {
+                    // Szolgáltatás és állapot tárolása a choosen-systems div-ben
+            
+                    const choosenSystemDiv = document.createElement('div');
+                    choosenSystemDiv.classList.add('choosen-system'); // CSS osztály a konténerhez
+            
+                    // Szolgáltatás neve
                     const serviceNameDiv = document.createElement('div');
-                    serviceNameDiv.textContent = "Szolgáltatás: " + status.name;
+                    cutStatusName = status.name
+                    cutStatusName = cutStatusName.slice(0, -8);
+                    serviceNameDiv.textContent = cutStatusName;
                     serviceNameDiv.classList.add('service-name'); // CSS osztály a névhez
             
-                    //Állapot
+                    // Állapot
+                    const serviceStatusHolder = document.createElement('div');
+                    serviceStatusHolder.classList.add('service-status-holder');
+                    
                     const serviceStatusDiv = document.createElement('div');
-                    serviceStatusDiv.textContent = "Állapot: " + status.status;
+                    serviceStatusDiv.textContent = status.status;
                     serviceStatusDiv.classList.add('service-status'); // CSS osztály az állapothoz
-            
-                    //Állapot alapján CSS osztályok
+                    
+                    // Állapot alapján CSS osztályok
                     if (status.status === 'active') {
                         serviceStatusDiv.classList.add('active');
                     } else if (status.status === 'inactive') {
@@ -187,11 +197,16 @@
                     } else {
                         serviceStatusDiv.classList.add('unknown');
                     }
-            
-                    serviceContainer.appendChild(serviceNameDiv);
-                    serviceContainer.appendChild(serviceStatusDiv);
-            
-                    monitorBox.appendChild(serviceContainer);
+                    
+                    // A serviceStatusDiv-et hozzáadjuk a serviceStatusHolder-hez
+                    serviceStatusHolder.appendChild(serviceStatusDiv);
+                    
+                    // Szolgáltatás nevét és állapotát hozzáadjuk a choosenSystemDiv-hez
+                    choosenSystemDiv.appendChild(serviceNameDiv);
+                    choosenSystemDiv.appendChild(serviceStatusHolder);
+                    
+                    // Hozzáadjuk a choosenSystemDiv-et a monitor-box-hoz
+                    monitorBox.appendChild(choosenSystemDiv);
                 });
             }
         };
