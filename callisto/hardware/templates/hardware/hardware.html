@@ -1,52 +1,66 @@
 <!DOCTYPE html>
 {% load static tailwind_tags %}
-<html lang="en" class="bg-[#020226]">
+<html lang="en" class="bg-[#f5f7f9]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% include 'nav.html' %}
     <title>Document</title>
     <style>
         #memoryProgressBarPercent {
             width: 250px;
             height: 150px;
-            position: relative;
-            margin-bottom: 20px;
         }
         #memoryProgressBarMB {
             width: 250px;
             height: 150px;
-            position: relative;
-            margin-bottom: 20px;
         }
         .progressbar-text {
             font-size: 24px;
             text-align: center;
-            position: absolute;
-            width: 100%;  
         }
 </style>
 </head>
     <body>
-        <section class="w-full bg-[#020226] text-[#fff] ">
-            <h1>Hardver felügyelet</h1>
-            <div class="w-full h-32 flex justify-center text-center">
-                <div class="w-[450px] pt-4 pb-4 rounded-3xl text-lg font-semibold bg-[#25283e60]">
-                    <p>Processzor: <span id="cpu_type"></span></p>
-                    <p>Magok száma: <span id="core_count"></span></p>
-                    <p>Összes memória: <span id="ram_all"></span></p>
-                </div>
+        <section class="w-full text-black flex min-h-[100vh]">
+            <div>
+                {% include 'nav.html' %}
             </div>
-            <!-- Dashboard -->
-            <div class="w-full min-h-[300px] bg-red-500 flex justify-center">
-                <div class="w-[1000px] min-h-[300px] bg-green-300 flex flex-wrap justify-center">
-                    <div id="cpuFreqBar">
-                        <p>Jelenlegi frekvencia: <span id="cpu_freq_current"></span> MHz</p>
+            <div class="bg-[#ffffff] w-[95%] h-min-[800px] mt-3 mr-3 ml-28 border-l-[#eaecee] border-2 rounded-t-3xl">
+                <div class="w-full h-20 border-b-[#edeef1] border-b-2">
+                    <h1 class="pt-3 pl-10 text-lg font-semibold">Hardver felügyelet</h1>
+                    <i class="pt-3 pl-10 ">Péntek, 2024.10.01</i>
+                </div>
+                <div class="w-full mt-6 ml-6 flex flex-wrap">
+                    <div class="w-[450px] pt-4 pb-4 pl-4 rounded-3xl text-lg bg-[#ffffff] border-[#eaecee] shadow1">
+                        <p class="font-semibold">Processzor:</p> <span id="cpu_type"></span>
+                        <p class="font-semibold">Magok száma:</p> <span id="core_count"></span>
+                        <p class="font-semibold">Összes memória:</p> <span id="ram_all"></span>
                     </div>
-                    <p><span id="ram_available"></span></p>
-                    <p><span id="ram_used"></span></p>
-                    <div id="memoryProgressBarPercent"></div>
-                    <div id="memoryProgressBarMB"></div>
+                    <div class="w-[250px] ml-6 shadow1 rounded-3xl flex justify-center">
+                        <div class="pl-4 w-full pt-4">
+                            <p class="font-semibold text-lg">Elsődleges nézet szerkesztő</p>
+                            <button class="border-[#eaecee] bg-[#f2f2f2] border-2 rounded-xl w-[220px] h-16 mt-6">Szerkesztés</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Dashboard -->
+                <div class="w-full min-h-[300px] flex ml-6 mt-6">
+                    <div class="w-[95%] min-h-[300px] bg-[#ffffff] text-black flex flex-wrap justify-center shadow1 rounded-3xl">
+                        <div class="w-full h-8 flex justify-center mt-3 text-xl font-semibold">
+                            <h2>Elsődleges nézet</h2>
+                        </div>
+                        <div class="flex justify-center text-center">
+                            <div class="mr-6" id="memoryProgressBarPercent"><h2>Memória</h2></div>
+                        </div>
+                        <div class="flex justify-center text-center">
+                            <div id="memoryProgressBarMB"><h2>Memória</h2></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-[95%] min-h-[300px] mt-6 ml-6 bg-[#ffffff] text-black flex flex-wrap justify-center shadow1 rounded-3xl">
+                    <div class="w-full h-8 flex justify-center mt-3 text-xl font-semibold">
+                        <h2>Statisztikák</h2>
+                    </div>
                 </div>
             </div>
         </section>
@@ -60,8 +74,8 @@
 
             var memoryBarPercent = new ProgressBar.SemiCircle('#memoryProgressBarPercent', {
                 strokeWidth: 8,
-                color: '#fff',
-                trailColor: '#021436',
+                color: 'black',
+                trailColor: '#f5f7f9',
                 trailWidth: 12,
                 easing: 'easeInOut',
                 duration: 1200,
@@ -97,7 +111,8 @@
         
                 // Dinamikus adatok folyamatos frissítése
                 if (data.cpu_freq_current !== undefined) {
-                    document.getElementById('cpu_freq_current').innerText = data.cpu_freq_current;
+                    cpu_freq_current = data.cpu_freq_current;
+                    //document.getElementById('cpu_freq_current').innerText = data.cpu_freq_current;
                     //document.getElementById('ram_available').innerText = data.ram_available + ' MB';
                     ram_used = data.ram_used;
                     //document.getElementById('ram_used').innerText = ram_used + ' MB';
@@ -119,8 +134,8 @@
 
             var memoryBarMB = new ProgressBar.SemiCircle('#memoryProgressBarMB', {
                 strokeWidth: 8,
-                color: '#fff',
-                trailColor: '#021436',
+                color: 'black',
+                trailColor: '#f5f7f9',
                 trailWidth: 12,
                 easing: 'easeInOut',
                 duration: 1200,
