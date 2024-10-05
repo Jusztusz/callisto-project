@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+{% load static tailwind_tags %}
+<html lang="en" class="bg-[#020226]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'nav.html' %}
+    <title>Document</title>
+    <style>
+        #memoryProgressBarPercent {
+            width: 250px;
+            height: 150px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        #memoryProgressBarMB {
+            width: 250px;
+            height: 150px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .progressbar-text {
+            font-size: 24px;
+            text-align: center;
+            position: absolute;
+            width: 100%;  
+        }
+</style>
+</head>
+    <body>
+        <section class="w-full bg-[#020226] text-[#fff] ">
+            <h1>Hardver felügyelet</h1>
+            <div class="w-full h-32 flex justify-center text-center">
+                <div class="w-[450px] pt-4 pb-4 rounded-3xl text-lg font-semibold bg-[#25283e60]">
+                    <p>Processzor: <span id="cpu_type"></span></p>
+                    <p>Magok száma: <span id="core_count"></span></p>
+                    <p>Összes memória: <span id="ram_all"></span></p>
+                </div>
+            </div>
+            <!-- Dashboard -->
+            <div class="w-full min-h-[300px] bg-red-500 flex justify-center">
+                <div class="w-[1000px] min-h-[300px] bg-green-300 flex flex-wrap justify-center">
+                    <div id="cpuFreqBar">
+                        <p>Jelenlegi frekvencia: <span id="cpu_freq_current"></span> MHz</p>
+                    </div>
+                    <p><span id="ram_available"></span></p>
+                    <p><span id="ram_used"></span></p>
+                    <div id="memoryProgressBarPercent"></div>
+                    <div id="memoryProgressBarMB"></div>
+                </div>
+            </div>
+        </section>
+        <script src="https://cdn.jsdelivr.net/npm/progressbar.js"></script>
+        <script>
+            
+            let ram_all = 0;
+            let ram_used = 0;
+
+            const socket = new WebSocket('ws://127.0.0.1:8000/ws/hardware/');
+
+            var memoryBarPercent = new ProgressBar.SemiCircle('#memoryProgressBarPercent', {
+                strokeWidth: 8,
+                color: '#fff',
+                trailColor: '#021436',
+                trailWidth: 12,
+                easing: 'easeInOut',
+                duration: 1200,
+                svgStyle: { width: '100%', height: '100%' },
+                text: {
+                    value: '0%',
+                    alignToBottom: false
+                },
+                from: { color: '#3253d6' },
+                to: { color: '#d632a5' },
+                step: (state, bar) => {
+                    bar.path.setAttribute('stroke', state.color);
+                    var value = Math.round(bar.value() * 100);
+                    bar.setText(value + ' %'); // Megjelenítés
+                }
+            });
+            // WebSocket kapcsolat létrejötte
+            socket.onopen = function(event) {
+                console.log("WebSocket kapcsolat létrejött");
+            }
+        
+            // WebSocketen keresztül érkező adatok kezelése
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+        
+                // Statikus adatok megjelenítése
+                if (data.cpu_type !== undefined) {
+                    document.getElementById('cpu_type').innerText = data.cpu_type;
+                    document.getElementById('core_count').innerText = data.core_count;
+                    ram_all = data.ram_all * 1024; 
+                    document.getElementById('ram_all').innerText = ram_all / 1024 + "GB";
+                }
+        
+                // Dinamikus adatok folyamatos frissítése
+                if (data.cpu_freq_current !== undefined) {
+                    document.getElementById('cpu_freq_current').innerText = data.cpu_freq_current;
+                    //document.getElementById('ram_available').innerText = data.ram_available + ' MB';
+                    ram_used = data.ram_used;
+                    //document.getElementById('ram_used').innerText = ram_used + ' MB';
+                    //document.getElementById('ram_used_percent').innerText = data.ram_used_percent + '%';
+        
+                    const memoryUsedPercent = data.ram_used_percent / 100;
+                    memoryBarPercent.animate(memoryUsedPercent);
+
+                    const memoryUsedFraction = ram_used / ram_all;
+                    memoryBarMB.animate(memoryUsedFraction); // Animálás
+                    memoryBarMB.setText(ram_used + ' MB');
+                    
+                }
+            };
+            // WebSocket kapcsolat lezárása
+            socket.onclose = function(event) {
+                console.log('WebSocket kapcsolat lezárult');
+            };
+
+            var memoryBarMB = new ProgressBar.SemiCircle('#memoryProgressBarMB', {
+                strokeWidth: 8,
+                color: '#fff',
+                trailColor: '#021436',
+                trailWidth: 12,
+                easing: 'easeInOut',
+                duration: 1200,
+                svgStyle: { width: '100%', height: '100%' },
+                text: {
+                    value: '0 MB',
+                    alignToBottom: false
+                },
+                from: { color: '#3253d6' },
+                to: { color: '#d632a5' },
+                step: (state, bar) => {
+                    bar.path.setAttribute('stroke', state.color);
+                    bar.setText(ram_used + ' MB');
+                }
+            });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/progressbar.js">
+            
+        </script>
+    </body>
+</html>

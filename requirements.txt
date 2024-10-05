@@ -5,3 +5,4 @@ pip install websockets
 pip install websocket-client
 python -m pip install django-tailwind
 python manage.py tailwind install
+pip install psutil

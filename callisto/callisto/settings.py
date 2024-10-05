@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'daphne',
     'services',
+    'hardware',
     'tailwind',
     'theme',
     'django_browser_reload',
