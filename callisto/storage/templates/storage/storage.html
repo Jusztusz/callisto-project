@@ -1,0 +1,56 @@
+<html class="bg-[#0d0d0d]">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Storage</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body{
+                margin: 20px;
+            }
+            #disk-list{
+                list-style-type: none; /* Eltávolítja a listaelemek előtti pontokat */
+                padding: 0;
+            }
+            .data-li{
+                margin-bottom: 15px; /* Különbség a listaelemek között */
+                padding: 10px;
+                border: 1px solid #ddd; /* Határ a listaelemek körül */
+                border-radius: 5px; /* Lekerekített sarkok */
+                background-color: #f9f9f9; /* Háttérszín */
+            }
+        </style>
+    </head>
+    <body>
+        {% include 'nav.html' %}
+        <section class="w-full text-black flex min-h-[100vh]">
+            <div class="bg-[#ffffff] w-[90%] h-min-[800px] mt-6 mr-6 ml-52 border-l-[#eaecee] border-2 rounded-t-3xl">
+                <h1>Merevlemez adatok</h1>
+                <ul id="disk-list">
+                    <!-- Itt fogják megjelenni az adatok -->
+                </ul>
+            </div>
+        </section>
+        <script>
+            // JSON fájl betöltése és adatok megjelenítése
+            fetch('/static/disks.json')
+                .then(response => response.json())
+                .then(data => {
+                    const listContainer = document.querySelector('#disk-list');
+                    data.forEach(disk => {
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('data-li');
+                        listItem.innerHTML = `
+                            <strong>Device:</strong> ${disk.device}<br>
+                            <strong>Size:</strong> ${disk.size}<br>
+                            <strong>Bytes:</strong> ${disk.bytes}<br>
+                            <strong>Sectors:</strong> ${disk.sectors}<br>
+                            <strong>Model:</strong> ${disk.model}
+                        `;
+                        listContainer.appendChild(listItem);
+                    });
+                })
+                .catch(error => console.error('Hiba a JSON fájl betöltésekor:', error));
+        </script>
+    </body>
+</html>

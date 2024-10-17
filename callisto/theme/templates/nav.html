@@ -7,13 +7,26 @@
     {% tailwind_css %}
 </head>
 <body>
-    <div class="w-28 h-full flex bg-[#f5f7f9] items-center fixed">
-        <nav class="w-28 h-[100vh]">
-            <a href="/">LOGO</a>
-            <a href="/ws/hardware" class="text-red-500">Hardver</a>
-            <a href="/ws/services">Szolgáltatások</a>
-            <a href="/ws/network">Hálózat</a>
-            <a href="/ws/network">Értesítés</a>
+    <div class="w-52 h-full mt-12 flex bg-[#0d0d0d] text-white items-center fixed">
+        <nav class="w-52 h-[100vh] text-center">
+            <h1 class="text-2xl">CALLISTO</h1>
+            <ul class="mt-12">
+                <li class="text-center hover:border-r-purple-500 hover:border-r-4">
+                    <a href="/ws/hardware" class="flex text-center text-xl pt-1 pb-1"><img src="{% static 'img/cpu.png' %}" alt="" class="h-8 ml-4 mr-4 pt-1"><p class="mt-[3px]">Hardver</p></a>
+                </li>
+                <li class="text-center hover:border-r-purple-500 hover:border-r-4">
+                    <a href="/ws/services" class="flex text-center text-xl pt-1 pb-1"><img src="{% static 'img/services.png' %}" alt="" class="h-8 ml-4 mr-4 pt-1"><p class="mt-[3px]">Szolgáltatások</p></a>
+                </li>
+                <li class="text-center hover:border-r-purple-500 hover:border-r-4">
+                    <a href="/ws/network" class="flex text-center text-xl pt-1 pb-1"><img src="{% static 'img/ethernet.png' %}" alt="" class="h-8 ml-4 mr-4 pt-1"><p class="mt-[3px]">Hálózat</p></a>
+                </li>
+                <li class="text-center hover:border-r-purple-500 hover:border-r-4">
+                    <a href="/storage" class="flex text-center text-xl pt-1 pb-1"><img src="{% static 'img/hdd.png' %}" alt="" class="h-8 ml-4 mr-4 pt-1"><p class="mt-[3px]">Háttértárak</p></a>
+                </li>
+                <li class="text-center hover:border-r-purple-500 hover:border-r-4">
+                    <a href="/ws/network" class="flex text-center text-xl pt-1 pb-1"><img src="{% static 'img/bell.png' %}" alt="" class="h-8 ml-4 mr-4 pt-1"><p class="mt-[3px]">Értesítés</p></a>
+                </li>
+            </ul>
         </nav>
     </div>
 </body>

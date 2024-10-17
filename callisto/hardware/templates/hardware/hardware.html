@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 {% load static tailwind_tags %}
-<html lang="en" class="bg-[#f5f7f9]">
+<html lang="en" class="bg-[#0d0d0d]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        #memoryProgressBarPercent {
+        #cpuProgressBarPercent{
             width: 250px;
             height: 150px;
         }
-        #memoryProgressBarMB {
+        #memoryProgressBarPercent{
             width: 250px;
             height: 150px;
         }
-        .progressbar-text {
+        #memoryProgressBarMB{
+            width: 250px;
+            height: 150px;
+        }
+        .progressbar-text{
             font-size: 24px;
             text-align: center;
+        }
+        #diskProgressBars{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 </style>
 </head>
@@ -25,7 +34,7 @@
             <div>
                 {% include 'nav.html' %}
             </div>
-            <div class="bg-[#ffffff] w-[95%] h-min-[800px] mt-3 mr-3 ml-28 border-l-[#eaecee] border-2 rounded-t-3xl">
+            <div class="bg-[#ffffff] w-[90%] h-min-[800px] mt-6 mr-6 ml-52 border-l-[#eaecee] border-2 rounded-t-3xl">
                 <div class="w-full h-20 border-b-[#edeef1] border-b-2">
                     <h1 class="pt-3 pl-10 text-lg font-semibold">Hardver felügyelet</h1>
                     <i class="pt-3 pl-10 ">Péntek, 2024.10.01</i>
@@ -36,30 +45,43 @@
                         <p class="font-semibold">Magok száma:</p> <span id="core_count"></span>
                         <p class="font-semibold">Összes memória:</p> <span id="ram_all"></span>
                     </div>
-                    <div class="w-[250px] ml-6 shadow1 rounded-3xl flex justify-center">
-                        <div class="pl-4 w-full pt-4">
-                            <p class="font-semibold text-lg">Elsődleges nézet szerkesztő</p>
-                            <button class="border-[#eaecee] bg-[#f2f2f2] border-2 rounded-xl w-[220px] h-16 mt-6">Szerkesztés</button>
-                        </div>
-                    </div>
                 </div>
                 <!-- Dashboard -->
                 <div class="w-full min-h-[300px] flex ml-6 mt-6">
                     <div class="w-[95%] min-h-[300px] bg-[#ffffff] text-black flex flex-wrap justify-center shadow1 rounded-3xl">
-                        <div class="w-full h-8 flex justify-center mt-3 text-xl font-semibold">
-                            <h2>Elsődleges nézet</h2>
+                        <div class="w-full h-8 flex justify-between mt-3 text-xl font-semibold">
+                            <div class="w-[120px]"></div>
+                            <div>
+                                <h2>Elsődleges nézet</h2>
+                            </div>
+                            <div>
+                                <button id="open-btn"><img src="{% static 'img/edit.png' %}" alt="" class="h-7 ml-4 mr-4 pt-1"></button>
+                                {% include 'primary_editor.html' %}
+                            </div>
                         </div>
                         <div class="flex justify-center text-center">
-                            <div class="mr-6" id="memoryProgressBarPercent"><h2>Memória</h2></div>
-                        </div>
-                        <div class="flex justify-center text-center">
-                            <div id="memoryProgressBarMB"><h2>Memória</h2></div>
+                            <div class="flex justify-center text-center">
+                                <div id="memoryProgressBarPercent" class="mr-6"><h2>Memória</h2></div>
+                            </div>
+                            <div class="flex justify-center text-center">
+                                <div id="memoryProgressBarMB" class="mr-6"><h2>Memória</h2></div>
+                            </div>
+                            <div class="flex justify-center text-center">
+                                <div id="cpuProgressBarPercent"><h2>Processzor</h2></div>
+                            </div>
+                            <div class="flex justify-center text-center">
+                                <div id="diskProgressBars"><h2>Merevlemez</h2></div>
+                            </div>
+    
                         </div>
                     </div>
                 </div>
                 <div class="w-[95%] min-h-[300px] mt-6 ml-6 bg-[#ffffff] text-black flex flex-wrap justify-center shadow1 rounded-3xl">
                     <div class="w-full h-8 flex justify-center mt-3 text-xl font-semibold">
                         <h2>Statisztikák</h2>
+                        <div class="flex justify-center text-center">
+                            <div id="test"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -71,6 +93,8 @@
             let ram_used = 0;
 
             const socket = new WebSocket('ws://127.0.0.1:8000/ws/hardware/');
+
+            let diskBars = [];
 
             var memoryBarPercent = new ProgressBar.SemiCircle('#memoryProgressBarPercent', {
                 strokeWidth: 8,
@@ -92,6 +116,29 @@
                     bar.setText(value + ' %'); // Megjelenítés
                 }
             });
+
+
+            var cpuBarPercent = new ProgressBar.SemiCircle('#cpuProgressBarPercent', {
+                strokeWidth: 8,
+                color: 'black',
+                trailColor: '#f5f7f9',
+                trailWidth: 12,
+                easing: 'easeInOut',
+                duration: 1200,
+                svgStyle: { width: '100%', height: '100%' },
+                text: {
+                    value: '0%',
+                    alignToBottom: false
+                },
+                from: { color: '#3253d6' },
+                to: { color: '#d632a5' },
+                step: (state, bar) => {
+                    bar.path.setAttribute('stroke', state.color);
+                    var value = Math.round(bar.value() * 100);
+                    bar.setText('~' + value + ' %'); // Megjelenítés
+                }
+            });
+
             // WebSocket kapcsolat létrejötte
             socket.onopen = function(event) {
                 console.log("WebSocket kapcsolat létrejött");
@@ -99,34 +146,96 @@
         
             // WebSocketen keresztül érkező adatok kezelése
             socket.onmessage = function(event) {
+
                 const data = JSON.parse(event.data);
-        
-                // Statikus adatok megjelenítése
+    
+                // Statikus adatok frissítése
                 if (data.cpu_type !== undefined) {
                     document.getElementById('cpu_type').innerText = data.cpu_type;
                     document.getElementById('core_count').innerText = data.core_count;
                     ram_all = data.ram_all * 1024; 
                     document.getElementById('ram_all').innerText = ram_all / 1024 + "GB";
                 }
-        
+            
                 // Dinamikus adatok folyamatos frissítése
                 if (data.cpu_freq_current !== undefined) {
                     cpu_freq_current = data.cpu_freq_current;
-                    //document.getElementById('cpu_freq_current').innerText = data.cpu_freq_current;
-                    //document.getElementById('ram_available').innerText = data.ram_available + ' MB';
-                    ram_used = data.ram_used;
-                    //document.getElementById('ram_used').innerText = ram_used + ' MB';
-                    //document.getElementById('ram_used_percent').innerText = data.ram_used_percent + '%';
-        
+                    cpu_percent = data.cpu_percent;
+                    ram_used = data.ram_used; 
+                    const ram_used_percent = data.ram_used_percent / 100; // Megjegyzés: ez az újított adatok közé került
+            
+                    // RAM progress bar animálása
+                    memoryBarMB.animate(ram_used / ram_all, {
+                        duration: 800,
+                        easing: 'easeInOut'
+                    });
+                    memoryBarMB.setText(ram_used + ' MB');
+            
                     const memoryUsedPercent = data.ram_used_percent / 100;
                     memoryBarPercent.animate(memoryUsedPercent);
-
-                    const memoryUsedFraction = ram_used / ram_all;
-                    memoryBarMB.animate(memoryUsedFraction); // Animálás
-                    memoryBarMB.setText(ram_used + ' MB');
                     
+                    const cpuUsedPercent = data.cpu_percent / 100;
+                    cpuBarPercent.animate(cpuUsedPercent);
+
+                    if (data.disk_usages) {
+                        let disk_usage = data.disk_usages;
+                
+                        disk_usage.forEach((disk, index) => {
+                            let usedMB = disk.used;
+                            let totalMB = disk.total;
+                            //console.log(usedMB);
+                            let percentage = usedMB / totalMB;
+
+                            // Ha a disk progress bar már létezik, frissítjük
+                            if (diskBars[`diskProgressBar${index}`]) {
+                                diskBars[`diskProgressBar${index}`].animate(percentage, {
+                                    duration: 800,
+                                    easing: 'easeInOut'
+                                });
+                                document.getElementById(`diskProgressBar${index}`).getElementsByClassName('progressbar-text').innerText = 1234;
+                            } else {
+                                //Ha még nem létezik
+                                console.log(`Creating progress bar for disk ${index} with total ${totalMB} MB`);
+                
+                                let progressBarContainer = document.createElement('div');
+                                progressBarContainer.id = `diskProgressBar${index}`;
+                                progressBarContainer.style.width = '300px';
+                                progressBarContainer.style.marginBottom = '20px';
+                                document.getElementById('diskProgressBars').appendChild(progressBarContainer);
+
+                                //Progressbar 
+                                diskBars[`diskProgressBar${index}`] = new ProgressBar.SemiCircle(`#diskProgressBar${index}`, {
+                                    strokeWidth: 8,
+                                    color: 'black',
+                                    trailColor: '#f5f7f9',
+                                    trailWidth: 12,
+                                    easing: 'easeInOut',
+                                    duration: 1200,
+                                    svgStyle: { width: '100%', height: '100%' },
+                                    text: {
+                                        value: 0,
+                                        alignToBottom: false
+                                    },
+                                    from: { color: '#3253d6' },
+                                    to: { color: '#d632a5' },
+                                    step: (state, bar) => {
+                                        bar.path.setAttribute('stroke', state.color);
+                                        bar.setText(usedMB + "MB");
+                                        //console.log(usedMB);
+                                    }
+                                });
+                
+                                //Kezdeti animáció
+                                diskBars[`diskProgressBar${index}`].animate(percentage, {
+                                    duration: 800,
+                                    easing: 'easeInOut'
+                                });
+                            }
+                        });
+                    }
                 }
             };
+
             // WebSocket kapcsolat lezárása
             socket.onclose = function(event) {
                 console.log('WebSocket kapcsolat lezárult');
