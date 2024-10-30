@@ -62,24 +62,20 @@
     <div class="popup">
       <h2>Válassz elemeket</h2>
       <div>
-        <input type="checkbox" id="checkbox1" value="Érték 1">
+        <input type="checkbox" id="checkbox1" value="memoryProgressBarPercent" onchange="toggleDivVisibility(this)">
         <label for="checkbox1">Memória - %</label>
       </div>
       <div>
-        <input type="checkbox" id="checkbox2" value="Érték 2">
+        <input type="checkbox" id="checkbox2" value="memoryProgressBarMB" onchange="toggleDivVisibility(this)">
         <label for="checkbox2">Memória - MB</label>
       </div>
       <div>
-        <input type="checkbox" id="checkbox3" value="Érték 3">
+        <input type="checkbox" id="checkbox3" value="cpuProgressBarPercent" onchange="toggleDivVisibility(this)">
         <label for="checkbox3">Processzor - %</label>
       </div>
       <div>
-        <input type="checkbox" id="checkbox3" value="Érték 4">
-        <label for="checkbox3">Merevlemez - %</label>
-      </div>
-      <div>
-        <input type="checkbox" id="checkbox3" value="Érték 5">
-        <label for="checkbox3">Merevlemez - GB</label>
+        <input type="checkbox" id="checkbox3" value="diskProgressBars" onchange="toggleDivVisibility(this)">
+        <label for="checkbox3">Merevlemez - MB</label>
       </div>
       <button class="close-btn">Bezárás</button>
     </div>
@@ -103,7 +99,7 @@
         overlay.style.display = 'none';
       });
   
-      // Az overlayre kattintva is záródik a popup
+      //Az overlayre kattintva is záródik a popup
       overlay.addEventListener('click', () => {
         popup.style.display = 'none';
         overlay.style.display = 'none';
@@ -111,6 +107,25 @@
 
       document.getElementById('cpuProgressBarPercent');
 
+      function toggleDivVisibility(checkbox) {
+        const divId = checkbox.value; // Checkbox value, div ID-ja
+        const div = document.getElementById(divId);
+        div.style.display = checkbox.checked ? 'block' : 'none';
+        localStorage.setItem(divId, checkbox.checked);
+    }
+    //Checkboxok állapotának betöltésébe
+    function loadCheckboxStates() {
+      const checkboxes = document.querySelectorAll('.popup input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+          const divId = checkbox.value;
+          const isChecked = localStorage.getItem(divId) === 'true'; // Ellenőrizzük, hogy a checkbox korábban be volt-e pipálva
+          checkbox.checked = isChecked; // Állítsuk be a checkbox állapotát
+          toggleDivVisibility(checkbox); // Megjelenítjük vagy elrejtjük a megfelelő divet
+      });
+    }
+
+    // Betöltjük a checkbox állapotokat a lap betöltésekor
+    window.onload = loadCheckboxStates;
     </script>
 
 </body>

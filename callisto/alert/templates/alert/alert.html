@@ -1,0 +1,83 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Értesítések</title>
+</head>
+<body>
+    <section class="flex">
+        {% include 'nav.html' %}
+        <section class="ml-52 mt-12 flex">
+            <h1>Értesítések</h1>
+            <form action="" class="block">
+                    <h2>Telegram bot összecsatolása <button class="border-2 rounded-full p-2">i</button></h2>
+                    <label for="t-Id">Telegram Chat ID</label>
+                    <input type="text" name="t-Id" id="">
+                    <br>
+                    <label for="API-key">Telegram Bot API Key</label>
+                    <input type="text" name="API-key" id="">
+                    <br>
+                    <input type="submit" value="Mentés">
+                    <br>
+            </form>
+            <form id="alertForm" class="block ml-52">
+                {% csrf_token %}
+                <h1>Értesítés létrehozása</h1>
+                <label for="alert-name">Értesítés neve</label>
+                <input type="text" name="alert-name" id="" required>
+                <h2>Komponens kiválasztása</h2>
+                <select name="component" id="" required>
+                    <option value="" selected disabled hidden>Válasszon itt..</option>
+                    <option value="memory">Memória</option>
+                    <option value="cpu">Processzor</option>
+                </select>
+                <br>
+                <label for="alert-value">Értesítési érték (%)</label>
+                <input type="number" name="alert-value" id="numberInput" min="0" max="100" required>
+                <br>
+                <input type="submit" value="Mentés">
+            </form>
+            
+            <p id="responseMessage"></p>
+            <table>
+
+            </table>
+        </section>
+    </section>
+    <script>
+        const input = document.getElementById('numberInput');
+    
+        input.addEventListener('input', () => {
+            const value = parseInt(input.value);
+            if (value < 0 || value > 100) {
+                alert("Az értesítési értéknek 0 és 100 között kell lennie!");
+                input.value = "";
+            }
+        });
+    </script>
+    <script>
+        document.getElementById('alertForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+    
+            let formData = new FormData(this);
+    
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest', // Jelzi, hogy AJAX kérést küldünk
+                    'X-CSRFToken': '{{ csrf_token }}'  // CSRF token
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseMessage').textContent = data.message;
+                document.getElementById('alertForm').reset();
+            })
+            .catch(error => console.error('Hiba:', error));
+        });
+    </script>
+</body>
+</html>

@@ -25,4 +25,6 @@ urlpatterns = [
     path("ws/services/", include("services.urls")),
     path("ws/hardware/", include("hardware.urls")),
     path("storage/", include("storage.urls")),
+    path("alert/", include("alert.urls")),
+    
 ]

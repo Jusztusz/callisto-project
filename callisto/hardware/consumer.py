@@ -4,6 +4,8 @@ import subprocess
 import math as m
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
+import datetime
+import aioredis
 
 class CPUConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -14,8 +16,6 @@ class CPUConsumer(AsyncWebsocketConsumer):
         core_count = ps.cpu_count()
         ram_all = m.ceil(ps.virtual_memory()[0] / (1024 ** 3))  # GB
 
-        
-        
         static_data = {
             'cpu_type': cpu_info,
             'core_count': core_count,
@@ -23,6 +23,9 @@ class CPUConsumer(AsyncWebsocketConsumer):
         }
 
         await self.send(text_data=json.dumps(static_data))
+
+        # Aszinkron Redis kapcsolat létrehozása
+        self.redis = await aioredis.from_url("redis://127.0.0.1:6379", password="callisto2024")
 
         # Folyamatosan frissítendő dinamikus adatok küldése
         while True:
@@ -42,24 +45,31 @@ class CPUConsumer(AsyncWebsocketConsumer):
                     'used': usage.used // (1024 ** 2),  # Használt tárhely MB-ban
                     'total': usage.total // (1024 ** 2)  # Teljes méret MB-ban
                 })
-            
+
+            # Aktuális idő emberi olvasható formátumban
+            current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Dátum és idő
+
             dynamic_data = {
+                'datetime': current_time,  # Emberi formátumú dátum
                 'cpu_freq_current': cpu_freq_current,
-                'cpu_percent' : cpu_percent,
+                'cpu_percent': cpu_percent,
                 'ram_available': ram_available,
                 'ram_used': ram_used,
                 'ram_used_percent': ram_used_percent,
-                'disk_usages': disk_usages
+                'disk_usages': json.dumps(disk_usages)  # Lista JSON formátumba alakítása
             }
 
             # Küldjük az aktuális adatokat a kliensnek
             await self.send(text_data=json.dumps(dynamic_data))
 
+            # Tároljuk el az adatokat Redis-ben
+            await self.redis.rpush("system_data", json.dumps(dynamic_data))
+
             # Várjunk 1 másodpercet a következő frissítésig
             await asyncio.sleep(1)
 
     async def disconnect(self, close_code):
-        pass
+        await self.redis.close()  # Zárd be a Redis kapcsolatot
 
     def get_cpu_info(self):
         try:
@@ -69,4 +79,3 @@ class CPUConsumer(AsyncWebsocketConsumer):
                     return line.split(":")[1].strip()
         except Exception as e:
             return str(e)
-        

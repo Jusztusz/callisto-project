@@ -1,0 +1,175 @@
+<head>
+    {% load static tailwind_tags %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="w-full flex justify-center">
+        <div>
+            <select id="timeIntervall" class="w-[200px] ">
+            </select>
+            <button id="refreshChart" class="mt-4 p-2 bg-blue-500 text-white rounded">Frissítés</button>
+            <!-- CPU -->
+            <div>
+                <h2>CPU Adatok:</h2>
+                <div class="w-full">
+                    <canvas id="cpuChart" width="800" height="400"></canvas>
+                </div>
+            </div>
+            <!-- Memória -->
+
+            <div>
+                <h2>Memória - MB(használt)</h2>
+                <div class="w-full">
+                    <canvas id="ramChart" width="800" height="400"></canvas>
+                </div>
+            </div> 
+        </div>
+    </div>
+    <!-- CPU grafikon -->
+    <script>
+
+        
+
+        const timeIntervallSelect = document.getElementById("timeIntervall");
+
+        console.log(graphTimeIntervall)
+
+        for (i of graphTimeIntervall) {
+            const options = document.createElement("option");
+            options.id = i.time;
+            options.innerText = i.time;
+            options.value = JSON.stringify(i);
+            options.name = i.time;
+            timeIntervallSelect.appendChild(options);
+        }
+
+        
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('cpuChart').getContext('2d');
+            
+            // A Chart.js grafikon inicializálása
+            let cpuData = {{ cpu_data | safe }};
+            let timestamps = {{ timestamps | safe }};  // Az időpontokat itt kezeljük
+            let myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
+                    datasets: [{
+                        label: 'CPU % - 30mp',
+                        data: cpuData,  // Y tengelyen a CPU százalékok
+                        backgroundColor: 'rgba(9, 199, 24, 0.42)',
+                        borderColor: 'rgba(9, 199, 24, 1)',
+                        borderWidth: 1,
+                        fill: true  
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'CPU %'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Idő'
+                            },
+                            ticks: {
+                                display: false  // Ezzel eltünteted az X tengely címkéit
+                            }
+                        }
+                    }
+                }
+            });
+    
+            // Frissítés
+            document.getElementById('refreshChart').addEventListener('click', function() {
+                let currentTimeValue = timeIntervallSelect.value;
+                fetch(`get_new_data?data=${currentTimeValue}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Frissítjük az adatokat a válaszból
+                        const newCpuData = data.cpu_data;
+                        const newTimestamps = data.timestamps;
+                        const newRamData = data.ram_used_mb;
+
+    
+                        // Frissítjük a grafikon adatait
+                        myChart.data.labels = newTimestamps; 
+                        myChart.data.datasets[0].data = newRamData; 
+    
+                        // Frissítjük a grafikon adatait
+                        myChart.data.labels = newTimestamps; 
+                        myChart.data.datasets[0].data = newCpuData; 
+                        myChart.update();
+                    })
+                    .catch(error => console.error('Hiba történt:', error));
+            });
+        });
+    </script>
+    <!-- Memória garfikon -->
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('ramChart').getContext('2d');
+            
+            // A Chart.js grafikon inicializálása
+            let ram_used_mb = {{ ram_used_mb|safe }};
+            let timestamps = {{ timestamps|safe }};  // Az időpontokat itt kezeljük
+            let ramChart1 = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
+                    datasets: [{
+                        label: 'Memória MB - 30mp',
+                        data: ram_used_mb,  // Y tengelyen a CPU százalékok
+                        backgroundColor: 'rgba(33, 138, 239, 0.59)',
+                        borderColor: 'rgba(0, 8, 252, 1)',
+                        borderWidth: 1,
+                        fill: true  
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Memória MB'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Idő'
+                            },
+                            ticks: {
+                                display: false  // Ezzel eltünteted az X tengely címkéit
+                            }
+                        }
+                    }
+                }
+            });
+            // Frissítés
+            document.getElementById('refreshChart').addEventListener('click', function() {
+                fetch('get_new_data')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Frissítjük az adatokat a válaszból
+                        const newRamData = data.ram_used_mb;
+                        const newTimestamps = data.timestamps;
+    
+                        // Frissítjük a grafikon adatait
+                        ramChart1.data.labels = newTimestamps; 
+                        ramChart1.data.datasets[0].data = newRamData; 
+                        ramChart1.update();
+                    })
+                    .catch(error => console.error('Hiba történt:', error));
+            });
+        });
+     </script>
+    </body>
+</body>
