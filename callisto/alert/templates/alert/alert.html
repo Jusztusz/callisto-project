@@ -1,83 +1,149 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-[#0d0d0d]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{% csrf_token %}">
     <title>Értesítések</title>
+    <style>
+        #successMessage{
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+    
+        .show{
+            display: block;
+        }
+        th, td{
+            padding: 10px;
+            text-align: left;
+        }
+        th{
+            background-color: #f2f2f2;
+        }
+        .set-center{
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <section class="flex">
+    <section class="flex w-[98%] min-h-[100vh]">
         {% include 'nav.html' %}
-        <section class="ml-52 mt-12 flex">
-            <h1>Értesítések</h1>
-            <form action="" class="block">
-                    <h2>Telegram bot összecsatolása <button class="border-2 rounded-full p-2">i</button></h2>
-                    <label for="t-Id">Telegram Chat ID</label>
-                    <input type="text" name="t-Id" id="">
-                    <br>
-                    <label for="API-key">Telegram Bot API Key</label>
-                    <input type="text" name="API-key" id="">
-                    <br>
-                    <input type="submit" value="Mentés">
-                    <br>
-            </form>
-            <form id="alertForm" class="block ml-52">
-                {% csrf_token %}
-                <h1>Értesítés létrehozása</h1>
-                <label for="alert-name">Értesítés neve</label>
-                <input type="text" name="alert-name" id="" required>
-                <h2>Komponens kiválasztása</h2>
-                <select name="component" id="" required>
-                    <option value="" selected disabled hidden>Válasszon itt..</option>
-                    <option value="memory">Memória</option>
-                    <option value="cpu">Processzor</option>
-                </select>
-                <br>
-                <label for="alert-value">Értesítési érték (%)</label>
-                <input type="number" name="alert-value" id="numberInput" min="0" max="100" required>
-                <br>
-                <input type="submit" value="Mentés">
-            </form>
-            
-            <p id="responseMessage"></p>
-            <table>
-
-            </table>
+        <section class="ml-52 w-[89%] h-auto bg-[#fff] rounded-3xl border">
+            <section class="bg-[#fff] items-center h-auto rounded-3xl">
+                    <h1 class="ml-6 mt-6 text-3xl">Értesítések kezelése</h1>
+                    <div class="w-[420px] h-[350px] ml-6 mt-6 bg-yellow-400 rounded-3xl border shadow1">
+                        <form id="telegramForm" action="{% url 'alert' %}" class="ml-3 mt-3">
+                            {% csrf_token %}
+                            <h1>Telegram Bot csatolása</h1>
+                            <label for="api_key">API kulcs:</label>
+                            <input type="text" name="api_key" id="api_key" required>
+                            <br>
+                            <label for="chat_id">Chat ID:</label>
+                            <input type="text" name="chat_id" id="chat_id" required>
+                            <br>
+                            <button type="submit">Telegram Mentés</button>
+                        </form>
+                    </div>
+                    <div class="w-[420px] h-[350px] ml-6 mt-6 bg-yellow-400 rounded-3xl border shadow1">
+                        <form id="alertForm" method="post" data-url="{% url 'alert' %}" class="ml-3 mt-3">
+                            {% csrf_token %}
+                            <p class=" text-xl">Értesítés létrehozása</p>
+                            <h2>Értesítés neve</h2>
+                            <input type="text" name="alert-name" id="" required>
+                            <h2>Komponens kiválasztása</h2>
+                            <select name="component" id="" required>
+                                <option value="" selected disabled hidden>Válasszon..</option>
+                                <option value="memory">Memória</option>
+                                <option value="cpu">Processzor</option>
+                            </select>
+                            <br>
+                            <h2>Értesítés értéke(%)</h2>
+                            <input type="number" name="alert-value" id="numberInput" min="0" max="100" required>
+                            <br>
+                            <h2>Fogadó Chat ID</h2>
+                            <select name="receiverChatID" id="receiverChatID">
+                                <option value="" selected disabled hidden>Válasszon..</option>
+                                {% for chat_id in chat_ids %}
+                                    <option value="{{ chat_id }}">{{ chat_id }}</option>
+                                {% endfor %}
+                            </select>
+                            <br>
+                            <input type="submit" value="Mentés">
+                        </form>
+                    </div>
+                <div id="successMessage" style="display: none;">Sikeres mentés!</div>
+            </section>
+            <section class="ml-6 mt-6">
+                <h1>Telegram Bot és Chat relációk</h1>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Chat ID</th>
+                                <th>API kulcs</th>
+                                <th>Művelet</th>
+                            </tr>
+                        </thead>
+                        <tbody id="credentialsList">
+                            {% for credential in credentials %}
+                            <tr>
+                                <td>{{ credential.chat_id }}</td>
+                                <td>{{ credential.api_key }}</td>
+                                <td>
+                                    <button class="delete-credential" data-chat-id="{{ credential.chat_id }}">Törlés</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section class="ml-6 mt-6 w-[500px]">
+                <h1 class="text-xl font-bold">Beállított értesítések</h1>
+                <table class="table-auto w-[500px]" id="alert-table">
+                    <thead>
+                        <tr>
+                            <th class="set-center">Értesítés neve</th>
+                            <th class="set-center">Komponens</th>
+                            <th class="set-center">Értesítési érték (%)</th>
+                            <th class="set-center">Fogadó chat</th>
+                            <th class="set-center">Művelet</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alertList" class="ml-2">
+                        {% for alert in alerts %}
+                            <tr>
+                                <td class="set-center">{{ alert.name }}</td>
+                                <td class="set-center">{{ alert.component }}</td>
+                                <td class="set-center">{{ alert.alert_value }}%</td>
+                                <td class="set-center">{{ alert.chatID }}</td>
+                                <td>
+                                    <button class="delete-alert" data-alert-id="{{ alert.id }}">Törlés</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>      
+            </section>
         </section>
     </section>
-    <script>
-        const input = document.getElementById('numberInput');
-    
-        input.addEventListener('input', () => {
-            const value = parseInt(input.value);
-            if (value < 0 || value > 100) {
-                alert("Az értesítési értéknek 0 és 100 között kell lennie!");
-                input.value = "";
-            }
-        });
-    </script>
-    <script>
-        document.getElementById('alertForm').addEventListener('submit', function(event) {
-            event.preventDefault(); 
-    
-            let formData = new FormData(this);
-    
-            fetch('', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest', // Jelzi, hogy AJAX kérést küldünk
-                    'X-CSRFToken': '{{ csrf_token }}'  // CSRF token
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('responseMessage').textContent = data.message;
-                document.getElementById('alertForm').reset();
-            })
-            .catch(error => console.error('Hiba:', error));
-        });
-    </script>
 </body>
+<script>
+    const alertUrl = "{% url 'alert' %}";
+</script>
+<script src="{% static 'js/alert_number_limit.js' %}"></script>
+<script src="{% static 'js/get_cookie.js' %}"></script>
+<script src="{% static 'js/alert_form.js' %}"></script>
+<script src="{% static 'js/alert_telegram.js' %}"></script>
+<script src="{% static 'js/alert_delete.js' %}"></script>
+<script src="{% static 'js/telegram_bot_delete.js' %}"></script>
 </html>

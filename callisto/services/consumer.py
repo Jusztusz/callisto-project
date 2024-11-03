@@ -5,7 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 
 class DataConsumer(WebsocketConsumer):
     def connect(self):
-        self.accept()  # Elfogadja a WebSocket kapcsolatot
+        self.accept()
 
     def disconnect(self, close_code):
         print("WebSocket disconnected")

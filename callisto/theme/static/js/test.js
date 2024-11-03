@@ -1,8 +1,8 @@
-const graphTimeIntervall = [
+let graphTimeIntervall = [
     {
         time: "1 perc",
         timeToSeconds: 60,
-        numberOfPoints: 60
+        numberOfPoints: 30
     },
 
     {
@@ -56,7 +56,7 @@ const graphTimeIntervall = [
     {
         time: "1 hónap",
         timeToSeconds: 2629746,
-        numberOfPoints: 30
+        numberOfPoints: 60
     },
 
     {

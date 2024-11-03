@@ -5,13 +5,11 @@ import math as m
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
 import datetime
-import aioredis
 
 class CPUConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
 
-        # Statikus adatok egyszeri küldése a kapcsolat létrejöttekor
         cpu_info = self.get_cpu_info()
         core_count = ps.cpu_count()
         ram_all = m.ceil(ps.virtual_memory()[0] / (1024 ** 3))  # GB
@@ -24,10 +22,6 @@ class CPUConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps(static_data))
 
-        # Aszinkron Redis kapcsolat létrehozása
-        self.redis = await aioredis.from_url("redis://127.0.0.1:6379", password="callisto2024")
-
-        # Folyamatosan frissítendő dinamikus adatok küldése
         while True:
             cpu_freq_current = round(ps.cpu_freq().current)
             cpu_percent = round(ps.cpu_percent())
@@ -62,14 +56,10 @@ class CPUConsumer(AsyncWebsocketConsumer):
             # Küldjük az aktuális adatokat a kliensnek
             await self.send(text_data=json.dumps(dynamic_data))
 
-            # Tároljuk el az adatokat Redis-ben
-            await self.redis.rpush("system_data", json.dumps(dynamic_data))
 
             # Várjunk 1 másodpercet a következő frissítésig
             await asyncio.sleep(1)
 
-    async def disconnect(self, close_code):
-        await self.redis.close()  # Zárd be a Redis kapcsolatot
 
     def get_cpu_info(self):
         try:
