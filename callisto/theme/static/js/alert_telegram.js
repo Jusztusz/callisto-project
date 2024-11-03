@@ -37,12 +37,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             rowTelegram.innerHTML = `
                                 <td>${cred.chat_id}</td>
-                                <td>${cred.api_key}</td>
+                                <td>${cred.encrypted_api_key}</td>
                                 <td><button class="delete-credential" data-chat-id="${ cred.chat_id }">Törlés</button></td>
                             `;
 
                             credentialsList.appendChild(rowTelegram);
-                            telegramDelete();
                         });
                     }
 

@@ -11,3 +11,5 @@ pip install aioredis
 apt install redis-server
 pip install psycopg2-binary
 pip install django-environ
+pip install cryptography
+

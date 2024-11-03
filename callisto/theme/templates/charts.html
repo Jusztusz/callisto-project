@@ -2,6 +2,7 @@
     {% load static tailwind_tags %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
     <div class="w-full flex justify-center">
         <div>
@@ -22,7 +23,7 @@
                 <div class="w-full">
                     <canvas id="ramChart" width="800" height="400"></canvas>
                 </div>
-            </div> 
+            </div>
 
             <!-- Háttértár -->
             <div>
@@ -35,17 +36,29 @@
                 <div class="w-full">
                     <canvas id="diskSda2Chart" width="800" height="400"></canvas>
                 </div>
-            </div> 
+            </div>
             <div>
                 <div class="w-full">
                     <canvas id="diskSda1Chart" width="800" height="400"></canvas>
                 </div>
-            </div> 
+            </div>
+            <h3>Háttértár - MB(használt) / Partíciós adatok</h3>
+            <div class="flex justify-between pb-5">
+                <div class="w-[300px] h-[300px]">
+                    <canvas id="diskUvulvPieChart" width="200px" height="200px"></canvas>
+                </div>
+                <div class="w-[300px] h-[300px]">
+                    <canvas id="diskSda2PieChart" width="200px" height="200px"></canvas>
+                </div>
+                <div class="w-[300px] h-[300px]">
+                    <canvas id="diskSda1PieChart" width="200px" height="200px"></canvas>
+                </div>
+            </div>
         </div>
     </div>
     <!-- CPU grafikon -->
     <script>
-        
+
         const timeIntervallSelect = document.getElementById("timeIntervall");
 
         console.log(graphTimeIntervall)
@@ -60,141 +73,141 @@
             timeIntervallSelect.appendChild(options);
         }
 
-        
 
-        document.addEventListener('DOMContentLoaded', function() {
+
+        document.addEventListener('DOMContentLoaded', function () {
             const cpuCtx = document.getElementById('cpuChart').getContext('2d');
             let currentTimeValue = timeIntervallSelect.value;
             let chartTime = JSON.parse(currentTimeValue)
             console.log(chartTime)
-            
+
             // A Chart.js grafikon inicializálása
             let cpuData = {{ cpu_data | safe }};
-            let cpu_timestamps = {{ timestamps | safe }};  // Az időpontokat itt kezeljük
-            let myChart = new Chart(cpuCtx, {
-                type: 'line',
-                data: {
-                    labels: cpu_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
-                    datasets: [{
-                        label: `CPU % - ${chartTime.time}`,
-                        data: cpuData,  // Y tengelyen a CPU százalékok
-                        backgroundColor: 'rgba(9, 199, 24, 0.42)',
-                        borderColor: 'rgba(9, 199, 24, 1)',
-                        borderWidth: 1,
-                        fill: true  
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'CPU %'
-                            }
+        let cpu_timestamps = {{ timestamps | safe }}; // Az időpontokat itt kezeljük
+        let myChart = new Chart(cpuCtx, {
+            type: 'line',
+            data: {
+                labels: cpu_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
+                datasets: [{
+                    label: `CPU % - ${chartTime.time}`,
+                    data: cpuData,  // Y tengelyen a CPU százalékok
+                    backgroundColor: 'rgba(9, 199, 24, 0.42)',
+                    borderColor: 'rgba(9, 199, 24, 1)',
+                    borderWidth: 1,
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'CPU %'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Idő'
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Idő'
-                            },
-                            ticks: {
-                                display: false  // Ezzel eltünteted az X tengely címkéit
-                            }
+                        ticks: {
+                            display: false  // Ezzel eltünteted az X tengely címkéit
                         }
                     }
                 }
-            });
+            }
+        });
 
-            const ramCtx = document.getElementById('ramChart').getContext('2d');
-            // A Chart.js grafikon inicializálása
-            let ram_used_mb = {{ ram_used_mb | safe }};
-            let ram_timestamps = {{ timestamps | safe }};  // Az időpontokat itt kezeljük
-            let ramChart1 = new Chart(ramCtx, {
-                type: 'line',
-                data: {
-                    labels: ram_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
-                    datasets: [{
-                        label: `Memória MB - ${chartTime.time}`,
-                        data: ram_used_mb,  // Y tengelyen a CPU százalékok
-                        backgroundColor: 'rgba(33, 138, 239, 0.59)',
-                        borderColor: 'rgba(0, 8, 252, 1)',
-                        borderWidth: 1,
-                        fill: true  
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Memória MB'
-                            }
+        const ramCtx = document.getElementById('ramChart').getContext('2d');
+        // A Chart.js grafikon inicializálása
+        let ram_used_mb = {{ ram_used_mb | safe }};
+        let ram_timestamps = {{ timestamps | safe }};  // Az időpontokat itt kezeljük
+        let ramChart1 = new Chart(ramCtx, {
+            type: 'line',
+            data: {
+                labels: ram_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
+                datasets: [{
+                    label: `Memória MB - ${chartTime.time}`,
+                    data: ram_used_mb,  // Y tengelyen a CPU százalékok
+                    backgroundColor: 'rgba(33, 138, 239, 0.59)',
+                    borderColor: 'rgba(0, 8, 252, 1)',
+                    borderWidth: 1,
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Memória MB'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Idő'
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Idő'
-                            },
-                            ticks: {
-                                display: false  // Ezzel eltünteted az X tengely címkéit
-                            }
+                        ticks: {
+                            display: false  // Ezzel eltünteted az X tengely címkéit
                         }
                     }
                 }
-            });
+            }
+        });
 
-            const diskUvulvCtx = document.getElementById('diskUvulvChart').getContext('2d');
-            let disk_uvulv_used_mb = {{ disk_uvulv | safe }};
-            let disk_sda2_used_mb = {{ disk_sda2 | safe }};
-            let disk_sda1_used_mb = {{ disk_sda1 | safe }};
-            let disk_timestamps = {{ timestamps | safe }};  // Az időpontokat itt kezeljük
-            
-            let diskUvulvChart = new Chart(diskUvulvCtx, {
-                type: 'line',
-                data: {
-                    labels: disk_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
-                    datasets: [
+        const diskUvulvCtx = document.getElementById('diskUvulvChart').getContext('2d');
+        let disk_uvulv_used_mb = {{ disk_uvulv | safe }};
+        let disk_sda2_used_mb = {{ disk_sda2 | safe }};
+        let disk_sda1_used_mb = {{ disk_sda1 | safe }};
+        let disk_timestamps = {{ timestamps | safe }};  // Az időpontokat itt kezeljük
+
+        let diskUvulvChart = new Chart(diskUvulvCtx, {
+            type: 'line',
+            data: {
+                labels: disk_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
+                datasets: [
                     {
                         label: `${disk_uvulv_used_mb.name} - MB - ${chartTime.time}`,
                         data: disk_uvulv_used_mb.disk_uvulv_avg,  // Y tengelyen a CPU százalékok
                         backgroundColor: '#c084fc',
                         borderColor: '#581c87',
                         borderWidth: 1,
-                        fill: true  
+                        fill: true
                     },
                 ]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: `Háttértár - MB(használt) / Partíciós adatok`
-                            }
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: `Háttértár - MB(használt) / Partíciós adatok`
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Idő'
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Idő'
-                            },
-                            ticks: {
-                                display: false  // Ezzel eltünteted az X tengely címkéit
-                            }
+                        ticks: {
+                            display: false  // Ezzel eltünteted az X tengely címkéit
                         }
                     }
                 }
-            });
+            }
+        });
 
-            const diskSda2Ctx = document.getElementById('diskSda2Chart').getContext('2d');
+        const diskSda2Ctx = document.getElementById('diskSda2Chart').getContext('2d');
 
-            let diskSda2Chart = new Chart(diskSda2Ctx , {
-                type: 'line',
-                data: {
-                    labels: disk_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
-                    datasets: [
+        let diskSda2Chart = new Chart(diskSda2Ctx, {
+            type: 'line',
+            data: {
+                labels: disk_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
+                datasets: [
 
                     {
                         label: `${disk_sda2_used_mb.name} - MB - ${chartTime.time}`,
@@ -202,135 +215,273 @@
                         backgroundColor: '#d946ef',
                         borderColor: '#701a75',
                         borderWidth: 1,
-                        fill: true  
-                    },    
+                        fill: true
+                    },
                 ]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: `Háttértár - MB(használt) / Partíciós adatok`
-                            }
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: `Háttértár - MB(használt) / Partíciós adatok`
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Idő'
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Idő'
-                            },
-                            ticks: {
-                                display: false  // Ezzel eltünteted az X tengely címkéit
-                            }
+                        ticks: {
+                            display: false  // Ezzel eltünteted az X tengely címkéit
                         }
                     }
                 }
-            });
+            }
+        });
 
-            const diskSda1Ctx = document.getElementById('diskSda1Chart').getContext('2d');
+        const diskSda1Ctx = document.getElementById('diskSda1Chart').getContext('2d');
 
-            let diskSda1Chart = new Chart(diskSda1Ctx, {
-                type: 'line',
-                data: {
-                    labels: disk_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
-                    datasets: [
+        let diskSda1Chart = new Chart(diskSda1Ctx, {
+            type: 'line',
+            data: {
+                labels: disk_timestamps,  // X tengelyen a Redis-ből származó dátumokat használjuk
+                datasets: [
                     {
                         label: `${disk_sda1_used_mb.name} - MB - ${chartTime.time}`,
                         data: disk_sda1_used_mb.disk_sda1_avg,  // Y tengelyen a CPU százalékok
                         backgroundColor: '#ec4899',
                         borderColor: '#831843',
                         borderWidth: 1,
-                        fill: true  
-                    }, 
+                        fill: true
+                    },
                 ]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: `Háttértár - MB(használt) / Partíciós adatok`
-                            }
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: `Háttértár - MB(használt) / Partíciós adatok`
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Idő'
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Idő'
-                            },
-                            ticks: {
-                                display: false  // Ezzel eltünteted az X tengely címkéit
-                            }
+                        ticks: {
+                            display: false  // Ezzel eltünteted az X tengely címkéit
                         }
                     }
                 }
-            });
+            }
+        });
 
-            // Frissítés
-            document.getElementById('refreshChart').addEventListener('click', function() {
-                let currentTimeValue = timeIntervallSelect.value;
-                let chartTime = JSON.parse(currentTimeValue)
-                ramChart1.update();
-                myChart.update();
-                fetch(`get_new_data?data=${currentTimeValue}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        myChart.data.datasets[0].label = `CPU % - ${chartTime.time}`
-                        // Frissítjük az adatokat a válaszból
-                        const newCpuData = data.cpu_data;
-                        const newTimestamps = data.timestamps;
-                        const newRamData = data.ram_used_mb;
+        const diskUvulvPieChartCtx = document.getElementById('diskUvulvPieChart').getContext('2d');
+        let disks_pie_chart_data = {{ disk_pie_chart_data | safe }};
 
-    
-                        // Frissítjük a grafikon adatait
-                        myChart.data.labels = newTimestamps; 
-                        myChart.data.datasets[0].data = newRamData; 
-    
-                        // Frissítjük a grafikon adatait
-                        myChart.data.labels = newTimestamps; 
-                        myChart.data.datasets[0].data = newCpuData;
+        console.log(disks_pie_chart_data[0].name)
+        // Create the chart
+        const diskUvulvPieChart = new Chart(diskUvulvPieChartCtx, {
+            type: "pie",
+            data: {
+                labels: ['Használt', 'Üres'],
+                datasets: [{
+                    label: `${disks_pie_chart_data[0].name}`,
+                    data: [disks_pie_chart_data[0].used, disks_pie_chart_data[0].total - disks_pie_chart_data[0].used], // Data values for each section
+                    backgroundColor: [ // Colors for each section
+                        '#cbd5e1',
+                        '#c084fc',
+                    ],
+                    borderColor: [ // Border colors for each section
+                        '#64748b',
+                        '#9333ea',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true
+                    },
+                    subtitle: {
+                        display: true,            // Show the title
+                        text: `${disks_pie_chart_data[0].name}`, // Title text
+                        font: {
+                            size: 12,            // Font size
+                            weight: 'bold'       // Font weight
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10           // Space between title and chart
+                        },
+                        color: '#333'            // Title color
+                    },
+                }
+            }
+        });
+        
+        const diskSda2PieChartCtx = document.getElementById('diskSda2PieChart').getContext('2d');
+        const diskSda2PieChart = new Chart(diskSda2PieChartCtx, {
+            type: "pie",
+            data: {
+                labels: ['Használt', 'Üres'],
+                datasets: [{
+                    label: `${disks_pie_chart_data[1].name}`,
+                    data: [disks_pie_chart_data[1].used, disks_pie_chart_data[1].total - disks_pie_chart_data[1].used], // Data values for each section
+                    backgroundColor: [ // Colors for each section
+                        '#cbd5e1',
+                        "#38bdf8"
+                    ],
+                    borderColor: [ // Border colors for each section
+                        '#64748b',
+                        '#0284c7',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true
+                    },
+                    subtitle: {
+                        display: true,            // Show the title
+                        text: `${disks_pie_chart_data[1].name}`, // Title text
+                        font: {
+                            size: 12,            // Font size
+                            weight: 'bold'       // Font weight
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10           // Space between title and chart
+                        },
+                        color: '#333'            // Title color
+                    },
+                }
+            }
+        });
+        
+        const diskSda1PieChartCtx = document.getElementById('diskSda1PieChart').getContext('2d');
+        const diskSda1PieChart = new Chart(diskSda1PieChartCtx, {
+            type: "pie",
+            data: {
+                labels: ['Használt', 'Üres'],
+                datasets: [{
+                    label: `${disks_pie_chart_data[2].name}`,
+                    data: [disks_pie_chart_data[2].used, disks_pie_chart_data[2].total - disks_pie_chart_data[2].used], // Data values for each section
+                    backgroundColor: [ // Colors for each section
+                        "#cbd5e1",
+                        "#4ade80"
+                    ],
+                    borderColor: [ // Border colors for each section
+                        "#64748b",
+                        "#16a34a"
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true
+                    },
+                    subtitle: {
+                        display: true,            // Show the title
+                        text: `${disks_pie_chart_data[2].name}`, // Title text
+                        font: {
+                            size: 12,            // Font size
+                            weight: 'bold'       // Font weight
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10           // Space between title and chart
+                        },
+                        color: '#333'            // Title color
+                    },
+                }
+            }
+        });
+        // Frissítés
+        document.getElementById('refreshChart').addEventListener('click', function () {
+            let currentTimeValue = timeIntervallSelect.value;
+            let chartTime = JSON.parse(currentTimeValue)
+            ramChart1.update();
+            myChart.update();
+            fetch(`get_new_data?data=${currentTimeValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    myChart.data.datasets[0].label = `CPU % - ${chartTime.time}`
+                    // Frissítjük az adatokat a válaszból
+                    const newCpuData = data.cpu_data;
+                    const newTimestamps = data.timestamps;
+                    const newRamData = data.ram_used_mb;
 
-                        const newRamTimestamps = data.timestamps;
-    
-                        // Frissítjük a grafikon adatait
-                        ramChart1.data.datasets[0].label = `Memória MB - ${chartTime.time}`
-                        ramChart1.data.labels = newTimestamps; 
-                        ramChart1.data.datasets[0].data = newRamData;
-                        myChart.data.datasets[0].data = newCpuData;
-                        ramChart1.update();
+
+                    // Frissítjük a grafikon adatait
+                    myChart.data.labels = newTimestamps;
+                    myChart.data.datasets[0].data = newRamData;
+
+                    // Frissítjük a grafikon adatait
+                    myChart.data.labels = newTimestamps;
+                    myChart.data.datasets[0].data = newCpuData;
+
+                    const newRamTimestamps = data.timestamps;
+
+                    // Frissítjük a grafikon adatait
+                    ramChart1.data.datasets[0].label = `Memória MB - ${chartTime.time}`
+                    ramChart1.data.labels = newTimestamps;
+                    ramChart1.data.datasets[0].data = newRamData;
+                    myChart.data.datasets[0].data = newCpuData;
+                    ramChart1.update();
 
 
 
-                        const newUvulvDiskData = data.disk_uvulv;
-                        const newSda2DiskData = data.disk_sda2;
-                        const newSda1DiskData = data.disk_sda1;
+                    const newUvulvDiskData = data.disk_uvulv;
+                    const newSda2DiskData = data.disk_sda2;
+                    const newSda1DiskData = data.disk_sda1;
 
-                        diskSda1Chart.data.datasets[0].label = `${disk_sda1_used_mb.name} - MB - ${chartTime.time}`
-                        diskSda2Chart.data.datasets[0].label = `${disk_sda2_used_mb.name} - MB - ${chartTime.time}`
-                        diskUvulvChart.data.datasets[0].label = `${disk_uvulv_used_mb.name} - MB - ${chartTime.time}`
+                    diskSda1Chart.data.datasets[0].label = `${disk_sda1_used_mb.name} - MB - ${chartTime.time}`
+                    diskSda2Chart.data.datasets[0].label = `${disk_sda2_used_mb.name} - MB - ${chartTime.time}`
+                    diskUvulvChart.data.datasets[0].label = `${disk_uvulv_used_mb.name} - MB - ${chartTime.time}`
 
-                        diskSda1Chart.data.labels = newTimestamps;
-                        diskSda2Chart.data.labels = newTimestamps; 
-                        diskUvulvChart.data.labels = newTimestamps; 
-                        diskSda1Chart.data.datasets[0].data = newSda1DiskData.disk_sda1_avg
-                        diskSda2Chart.data.datasets[0].data = newSda2DiskData.disk_sda2_avg
-                        diskUvulvChart.data.datasets[0].data = newUvulvDiskData.disk_uvulv_avg
+                    diskSda1Chart.data.labels = newTimestamps;
+                    diskSda2Chart.data.labels = newTimestamps;
+                    diskUvulvChart.data.labels = newTimestamps;
+                    diskSda1Chart.data.datasets[0].data = newSda1DiskData.disk_sda1_avg
+                    diskSda2Chart.data.datasets[0].data = newSda2DiskData.disk_sda2_avg
+                    diskUvulvChart.data.datasets[0].data = newUvulvDiskData.disk_uvulv_avg
 
 
-                        
-                        diskUvulvChart.update();
-                        diskSda2Chart.update();
-                        diskSda1Chart.update();
-                        ramChart1.update();
-                        myChart.update();
-                    })
-                    .catch(error => console.error('Hiba történt:', error));
-            });
+
+                    diskUvulvChart.update();
+                    diskSda2Chart.update();
+                    diskSda1Chart.update();
+                    ramChart1.update();
+                    myChart.update();
+                })
+                .catch(error => console.error('Hiba történt:', error));
+        });
         });
     </script>
     <!-- Memória garfikon -->
-     <script>
-     </script>
-    </body>
+    <script>
+    </script>
+</body>
 </body>

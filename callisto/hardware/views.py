@@ -39,10 +39,12 @@ async def fetch_last_n_data(redis_client, timeToSeconds = 60, numberOfPoints=30)
         timestamps.append(metric_date)
 
     # Pie Chart adatok a háttértárakhoz
-    disk_pie_chart_data = {}
-    print(disk_usage_uvulv_mb[-1])
-    print(disk_usage_sda2_mb[-1])
-    print(disk_usage_sda1_mb[-1])
+    disk_pie_chart_data = [] 
+    disk_pie_chart_data.append(disk_usage_uvulv_mb[-1])
+    disk_pie_chart_data.append(disk_usage_sda2_mb[-1])
+    disk_pie_chart_data.append(disk_usage_sda1_mb[-1])
+
+    disk_pie_chart_data
 
     # Adatpontok listájának mérete
     cpu_list_size = len(cpu_data)
@@ -138,7 +140,7 @@ async def fetch_last_n_data(redis_client, timeToSeconds = 60, numberOfPoints=30)
     disk_sda1_obj["total"] = disk_sda1_total
     disk_sda1_obj["disk_sda1_avg"] = disk_sda1_avg
     
-    return cpu_data_avg, ram_data_avg, timestamps_of_last_item, disk_uvulv_obj, disk_sda2_obj, disk_sda1_obj
+    return cpu_data_avg, ram_data_avg, timestamps_of_last_item, disk_uvulv_obj, disk_sda2_obj, disk_sda1_obj, disk_pie_chart_data
 
 async def get_new_data(request):
     data = request.GET.get('data')
@@ -146,7 +148,7 @@ async def get_new_data(request):
 
     redis_client = await aioredis.from_url("redis://localhost:6379", password="callisto2024")
 
-    cpu_data, ram_used_mb, timestamps, disk_uvulv, disk_sda2, disk_sda1 = await fetch_last_n_data(redis_client, data2.get("timeToSeconds"), data2.get("numberOfPoints") )  # Lekérjük az utolsó 30 elemet
+    cpu_data, ram_used_mb, timestamps, disk_uvulv, disk_sda2, disk_sda1, disk_pie_chart_data = await fetch_last_n_data(redis_client, data2.get("timeToSeconds"), data2.get("numberOfPoints") )  # Lekérjük az utolsó 30 elemet
     await redis_client.close()
     
     # JSON válasz a frontend számára
@@ -157,11 +159,12 @@ async def get_new_data(request):
         'disk_uvulv': disk_uvulv,
         'disk_sda2' : disk_sda2,
         'disk_sda1' : disk_sda1,
+        'disk_pie_chart_data': disk_pie_chart_data
     })
 
 async def hardware(request):
     redis_client = await aioredis.from_url("redis://localhost:6379", password="callisto2024")
-    cpu_data, ram_used_mb, timestamps, disk_uvulv, disk_sda2, disk_sda1 = await fetch_last_n_data(redis_client, 30)
+    cpu_data, ram_used_mb, timestamps, disk_uvulv, disk_sda2, disk_sda1, disk_pie_chart_data = await fetch_last_n_data(redis_client, 30)
     await redis_client.close()
 
     return render(request, "hardware/hardware.html", {
@@ -171,4 +174,5 @@ async def hardware(request):
         'disk_uvulv': disk_uvulv,
         'disk_sda2': disk_sda2,
         'disk_sda1' : disk_sda1,
+        'disk_pie_chart_data' : disk_pie_chart_data
     })
