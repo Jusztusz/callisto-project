@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'services',
     'hardware',
     'storage',
+    'network',
     'tailwind',
     'theme',
     'django_browser_reload',
@@ -74,6 +75,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
+LOGIN_URL = '/'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_AGE = 3600
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 ROOT_URLCONF = 'callisto.urls'
 
@@ -123,7 +129,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379/1',  # Az URL-t állítsd be a saját Redis kiszolgálódnak megfelelően
+        'LOCATION': '127.0.0.1:6379/1',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }

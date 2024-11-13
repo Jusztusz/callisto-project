@@ -70,7 +70,6 @@ class DataConsumer(WebsocketConsumer):
             json.dump(services, file)
 
     def get_service_statuses(self):
-        """Lekérdezi a choosen_services.json fájlban lévő szolgáltatások állapotát."""
         filename = 'choosen_services.json'
         if os.path.exists(filename):
             with open(filename, 'r') as file:

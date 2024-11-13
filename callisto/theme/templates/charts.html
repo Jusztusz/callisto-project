@@ -61,10 +61,7 @@
 
         const timeIntervallSelect = document.getElementById("timeIntervall");
 
-        console.log(graphTimeIntervall)
-
         for (i of graphTimeIntervall) {
-            console.log(i)
             const options = document.createElement("option");
             options.id = i.time;
             options.innerText = i.time;
@@ -79,7 +76,6 @@
             const cpuCtx = document.getElementById('cpuChart').getContext('2d');
             let currentTimeValue = timeIntervallSelect.value;
             let chartTime = JSON.parse(currentTimeValue)
-            console.log(chartTime)
 
             // A Chart.js grafikon inicializálása
             let cpuData = {{ cpu_data | safe }};
@@ -283,7 +279,6 @@
         const diskUvulvPieChartCtx = document.getElementById('diskUvulvPieChart').getContext('2d');
         let disks_pie_chart_data = {{ disk_pie_chart_data | safe }};
 
-        console.log(disks_pie_chart_data[0].name)
         // Create the chart
         const diskUvulvPieChart = new Chart(diskUvulvPieChartCtx, {
             type: "pie",

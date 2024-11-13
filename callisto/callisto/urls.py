@@ -19,12 +19,13 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('', views.homepage),
+    path('', views.login_view),
     path('admin/', admin.site.urls),
     path("__reload__/", include("django_browser_reload.urls")),
     path("ws/services/", include("services.urls")),
     path("ws/hardware/", include("hardware.urls")),
     path("storage/", include("storage.urls")),
     path("alert/", include("alert.urls")),
+    path("ws/network/", include("network.urls")),
     
 ]

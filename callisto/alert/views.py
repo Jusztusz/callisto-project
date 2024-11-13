@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from cryptography.fernet import Fernet
 import base64
+from django.contrib.auth.decorators import login_required
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 BOTS_DIR = BASE_DIR / 'bots'
@@ -28,7 +29,7 @@ def save_alert(name, component, alert_value, chatID, alertMessage):
     new_alert = savedAlert(name=name, component=component, alert_value=alert_value, chatID=chatID, alertMessage=alertMessage)
     new_alert.save()
 
-    file_creation_response = create_alert_file(chatID, alertMessage)
+    file_creation_response = create_alert_file(name, chatID, alertMessage)
 
     return {
         "message": "Sikeres mentés!",
@@ -42,6 +43,7 @@ def save_alert(name, component, alert_value, chatID, alertMessage):
         },
     }
 
+@login_required
 def alert(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Ha Telegram hitelesítési adatokat küldtek
@@ -92,12 +94,14 @@ def get_telegram_credentials(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     
-def create_alert_file(chat_id, alertMessage):
+def create_alert_file(name, chat_id, alertMessage):
     credentials = TelegramCredentials.objects.first()
+    savedalert  = savedAlert.objects.first()
     
     if credentials:
         token = TelegramCredentials.decrypt_api_key(credentials.encrypted_api_key)
         chat_id = credentials.chat_id
+        botname = savedalert.name
 
         content = f"""import requests
 
@@ -116,7 +120,7 @@ def send_message(text):
 send_message("{alertMessage}")
         """
 
-        file_path = BOTS_DIR / f"{chat_id}.py"  
+        file_path = BOTS_DIR / f"{botname}.py"  
         with open(file_path, "w") as file:
             file.write(content)
         os.chmod(file_path, 0o764)

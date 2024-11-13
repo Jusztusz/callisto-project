@@ -4,6 +4,7 @@ import json
 from django.http import JsonResponse
 import math
 import psutil
+from django.contrib.auth.decorators import login_required
 
 async def fetch_last_n_data(redis_client, timeToSeconds = 60, numberOfPoints=30):
     # Lekérjük az utolsó n elemet a Redis listából
@@ -161,7 +162,8 @@ async def get_new_data(request):
         'disk_sda1' : disk_sda1,
         'disk_pie_chart_data': disk_pie_chart_data
     })
-
+    
+@login_required
 async def hardware(request):
     redis_client = await aioredis.from_url("redis://localhost:6379", password="callisto2024")
     cpu_data, ram_used_mb, timestamps, disk_uvulv, disk_sda2, disk_sda1, disk_pie_chart_data = await fetch_last_n_data(redis_client, 30)
@@ -176,3 +178,13 @@ async def hardware(request):
         'disk_sda1' : disk_sda1,
         'disk_pie_chart_data' : disk_pie_chart_data
     })
+
+
+async def get_disks(redis_client):
+    data = await redis_client.lrange("system_data", -1,-1)
+    return(json.loads(data[0]).get("disk_usages"))
+
+async def get_disks_data(request):
+    redis_client = await aioredis.from_url("redis://localhost:6379", password="callisto2024")
+    disk_data = await get_disks(redis_client)
+    return JsonResponse({'data': disk_data})

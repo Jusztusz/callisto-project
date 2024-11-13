@@ -1,1 +1,1 @@
-["apache2.service", "certbot.service", "cockpit.service", "cron.service", "nginx.service", "smbd.service", "vsftpd.service"]
+["apache2.service", "apparmor.service", "certbot.service", "gunicorn.service", "nginx.service", "openvpn.service", "smbd.service", "vsftpd.service"]

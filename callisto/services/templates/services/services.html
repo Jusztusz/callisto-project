@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-[#020226]">
+<html lang="en" class="bg-[#0d0d0d]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,7 @@
             width: 150px;
             height: 35px;
             margin-top: 15px;
+            color: black;
         }
         #services-list-div{
             display: none;
@@ -20,119 +21,104 @@
             height: 300px;
             border: 1px solid black;
             overflow-y: scroll;
-        }
-        ul, li{
-            list-style: none;
-        }
-        .services-bottom{
-            width: 100%;
-            height: 30px;
-            background-color: aquamarine;
-            position: sticky;
-            bottom: 0;
-            left: 0;
-            text-align: end;
-        }
-        .choosen-system{
-            background-color: #25283e60;
-            margin: 24px 12px 40px 0;
-            border-radius: 12px;
-            width: 360px;
-            height: 180px;
-            border: 2px solid #3b3c4d;
-            box-shadow: rgba(240, 46, 170, 0.4) 0px 5px, 
-            rgba(240, 46, 170, 0.3) 0px 10px, 
-            rgba(240, 46, 170, 0.2) 0px 15px, 
-            rgba(240, 46, 170, 0.1) 0px 20px, 
-            rgba(240, 46, 170, 0.05) 0px 25px;
-        }
-        .service-name{
-            padding-left: 5px;
-            padding-top: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #3b3c4d;
-            text-align: center;
-            font-weight: bolder;
-            align-items: center;
-            font-size: 18px;
-        }
-        .service-status-holder{
-            border-radius: 5px;
-            font-size: 18px;
-            text-align: center;
-            padding: 25px 0 25px 0;
-            width: 100%;
-        }
-        .service-status{
-            width: 150px;
-            margin: 0 auto;
-            border-radius: 12px;
+            color: black;
         }
         .active{
-            border: 1.5px solid #0a8a01;
-            background-color: #20f91131;
             padding: 10px;
             color: #15ff04;
         }
         .inactive{
-            border: 1.5px solid #db080871;
-            background-color: #f9111138;
             padding: 10px;
             color: #ff0000;
         }
         .unknow{
-            border: 1.5px solid #ff5e00d8;
-            background-color: #e765194f;
             padding: 10px;
             color: #ff7300;
+        }
+        .status-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+        
+        .status-table th, .status-table td {
+            padding: 15px;
+            text-align: left;
+            border: none;
+        }
+        
+        .status-table th {
+            background-color: #454545;
+            color: white;
+        }
+        .status-table td {
+            border-bottom: 1.5px solid rgb(167, 167, 167);
+        }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Háttér elhomályosítása */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <section class="w-full bg-[#020226] text-[#fff] ">
+    <section class="w-full flex bg-[#0d0d0d] text-[#fff] ">
         {% include 'nav.html' %}
-        <div class="w-full h-14 border-b-2 border-[#3b3c4d] flex justify-center text-center">
-            <div class="w-[50px] h-14 ">
-                <a href="/">Vissza</a>
-            </div>
-            <div class="w-full h-14 flex justify-center">
-                <h1>Szolgáltatás felügyelő</h1>
-            </div>
-            <div class="w-[50px]">
-
-            </div>
-        </div>
-        <button onclick="showAddServices()" class="add-btn">Hozzáadás</button>
-        <script>
-            function showAddServices() {
-                var x = document.getElementById("services-list-div");
-                if (x.style.display === "block") {
-                  x.style.display = "none";
-                } else {
-                  x.style.display = "block";
-                  x.style.zIndex = 10;
-                  x.style.position = "absolute";
-                }
-              }
-        </script>
-        <div class="" id="services-list-div">
-            <h3>Telepített szolgáltatások</h3>
-            <input type="text" id="search" placeholder="Keresés a szolgáltatások között..." />
-            <ul class="services-list" id="services-list">
-
-            </ul>
-            <div class="services-bottom">
-                <button id="save-services-btn">Mentés</button>
-            </div>
-        </div>
-            <div class="h-auto flex flex-wrap justify-center ">
-                <div class="w-[850px] min-h-[600px] flex flex-wrap justify-center bg-[#0f1233] rounded-3xl" id="monitor-box">
-    
+        <div class="w-full min-h-[100vh]">
+            <div class="w-[88%] h-min-[100vh] ml-52 mt-6 mr-6 bg-[#fff] border-l-[#eaecee] border-2 rounded-t-3xl">
+                <div class="w-full h-20 border-b-[#888888] border-b-2 text-black">
+                    <h1 class="pt-3 pl-10 text-lg font-semibold">Szolgáltatás felügyelet</h1>
+                    <i class="pt-3 pl-10 ">Péntek, 2024.10.01</i>
+                </div>
+                <button onclick="openPopup()" class="text-[#fff] ml-6 mt-6 border-1 p-2 bg-[#454545] rounded-2xl">Szolgáltatások hozzáadása</button>
+                    <div id="popup-modal" class="popup hidden">
+                        <div class="popup-content">
+                            <span class="close-btn text-black" onclick="closePopup()">×</span>
+                            <h3>Telepített szolgáltatások</h3>
+                            <input type="text" id="search" placeholder="Keresés a szolgáltatások között..." class="text-black" />
+                            <ul class="services-list text-black" id="services-list">
+                                <!-- Ide kerül a szolgáltatások listája (checkboxok) -->
+                            </ul>
+                            <button id="save-services-btn" class="text-black">Mentés</button>
+                        </div>
+                    </div>
+                <div class="h-auto ml-6">
+                    <div class="w-[900px] min-h-[100vh] text-black" id="monitor-box">
+        
+                    </div>
                 </div>
             </div>
+        </div>
     </section>
-    <footer class="w-full h-[50px] bg-black mt-[24px] relative bottom-0">
-
     </footer>
     <script>
         const socket = new WebSocket('ws://127.0.0.1:8000/ws/services/');
@@ -186,46 +172,57 @@
                 const monitorBox = document.getElementById('monitor-box');
                 monitorBox.innerHTML = ''; // Tisztítsd meg a meglévő tartalmat
             
-                response.service_statuses.forEach(status => {
-                    // Szolgáltatás és állapot tárolása a choosen-systems div-ben
+                // Táblázat létrehozása és hozzáadása a monitorBox-hoz
+                const table = document.createElement('table');
+                table.classList.add('status-table'); // CSS osztály a táblázathoz
             
-                    const choosenSystemDiv = document.createElement('div');
-                    choosenSystemDiv.classList.add('choosen-system'); // CSS osztály a konténerhez
+                // Táblázat fejlécének létrehozása
+                const headerRow = document.createElement('tr');
+            
+                const nameHeader = document.createElement('th');
+                nameHeader.textContent = 'Szolgáltatás neve';
+                headerRow.appendChild(nameHeader);
+            
+                const statusHeader = document.createElement('th');
+                statusHeader.textContent = 'Állapot';
+                headerRow.appendChild(statusHeader);
+            
+                table.appendChild(headerRow);
+            
+                // Szolgáltatások hozzáadása a táblázathoz
+                response.service_statuses.forEach(status => {
+                    const row = document.createElement('tr');
+                    row.classList.add('status-row'); // CSS osztály a sorokhoz
             
                     // Szolgáltatás neve
-                    const serviceNameDiv = document.createElement('div');
-                    cutStatusName = status.name
-                    cutStatusName = cutStatusName.slice(0, -8);
-                    serviceNameDiv.textContent = cutStatusName;
-                    serviceNameDiv.classList.add('service-name'); // CSS osztály a névhez
+                    const nameCell = document.createElement('td');
+                    let cutStatusName = status.name.slice(0, -8);
+                    nameCell.textContent = cutStatusName;
+                    nameCell.classList.add('service-name'); // CSS osztály a névhez
+                    row.appendChild(nameCell);
             
-                    // Állapot
-                    const serviceStatusHolder = document.createElement('div');
-                    serviceStatusHolder.classList.add('service-status-holder');
-                    
-                    const serviceStatusDiv = document.createElement('div');
-                    serviceStatusDiv.textContent = status.status;
-                    serviceStatusDiv.classList.add('service-status'); // CSS osztály az állapothoz
-                    
+                    // Szolgáltatás állapota
+                    const statusCell = document.createElement('td');
+                    statusCell.textContent = status.status;
+                    statusCell.classList.add('service-status'); // CSS osztály az állapothoz
+            
                     // Állapot alapján CSS osztályok
                     if (status.status === 'active') {
-                        serviceStatusDiv.classList.add('active');
+                        statusCell.classList.add('active');
                     } else if (status.status === 'inactive') {
-                        serviceStatusDiv.classList.add('inactive');
+                        statusCell.classList.add('inactive');
                     } else {
-                        serviceStatusDiv.classList.add('unknown');
+                        statusCell.classList.add('unknown');
                     }
-                    
-                    // A serviceStatusDiv-et hozzáadjuk a serviceStatusHolder-hez
-                    serviceStatusHolder.appendChild(serviceStatusDiv);
-                    
-                    // Szolgáltatás nevét és állapotát hozzáadjuk a choosenSystemDiv-hez
-                    choosenSystemDiv.appendChild(serviceNameDiv);
-                    choosenSystemDiv.appendChild(serviceStatusHolder);
-                    
-                    // Hozzáadjuk a choosenSystemDiv-et a monitor-box-hoz
-                    monitorBox.appendChild(choosenSystemDiv);
+            
+                    row.appendChild(statusCell);
+            
+                    // Sor hozzáadása a táblázathoz
+                    table.appendChild(row);
                 });
+            
+                // Táblázat hozzáadása a monitor-box-hoz
+                monitorBox.appendChild(table);
             }
         };
         
@@ -234,10 +231,23 @@
         };
         
         // Kiválasztott szolgáltatások mentése
+        
+    </script>
+    <script>
+        function openPopup() {
+            document.getElementById('popup-modal').classList.remove('hidden');
+        }
+        
+        // Popup bezárása
+        function closePopup() {
+            document.getElementById('popup-modal').classList.add('hidden');
+        }
+        
+        // Mentési funkció
         document.getElementById('save-services-btn').addEventListener('click', function() {
             const checkboxes = document.querySelectorAll('#services-list input[type="checkbox"]');
             const chosenServices = [];
-        
+            
             checkboxes.forEach(checkbox => {
                 if (checkbox.checked) {
                     chosenServices.push(checkbox.value); // Csak a kiválasztott szolgáltatásokat mentjük
@@ -246,9 +256,11 @@
                     localStorage.setItem(checkbox.value, 'false'); // Mentjük, hogy nincs pipálva
                 }
             });
-        
+            
             // Küldjük a kiválasztott szolgáltatásokat a szervernek
             socket.send(JSON.stringify({ action: 'save_services', services: chosenServices }));
+            
+            closePopup(); // Popup bezárása mentés után
         });
         
         // Keresési funkció

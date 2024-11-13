@@ -6,4 +6,7 @@
     .shadow1{
       box-shadow: rgba(105, 103, 103, 0.699) 0px 2px 8px 0px;
     }
+    .shadow2{
+      box-shadow: rgba(255, 255, 255, 0.56) 0px 22px 70px 4px;
+    }
   }

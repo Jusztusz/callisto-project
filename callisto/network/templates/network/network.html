@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+{% load static tailwind_tags %}
+<html lang="en" class="bg-[#0d0d0d]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hálózat</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <section class="flex w-full min-h-[100vh]">
+        <div>
+            {% include 'nav.html' %}
+        </div>
+        <div class="ml-52 w-[95%]">
+              <div class="w-[98%] min-h-[100vh] bg-[#ffffff] h-min-[800px] mt-6 mr-6 border-l-[#eaecee] border-2 rounded-t-3xl">
+                <div class="w-full h-20 border-b-[#edeef1] border-b-2">
+                    <h1 class="pt-3 pl-10 text-lg font-semibold">Hálózat felügyelet</h1>
+                    <i class="pt-3 pl-10 ">Péntek, 2024.10.01</i>
+                </div>
+                <div class="w-full flex justify-center items-center h-[600px]">
+                    <div class="w-[1000px] h-[800px] flex justify-center items-center">
+                        <canvas id="networkChart" class=""></canvas>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // WebSocket kapcsolat indítása
+        const socket = new WebSocket('ws://127.0.0.1:8000/ws/network/');
+      
+        // Chart.js beállítása
+        const ctx = document.getElementById('networkChart').getContext('2d');
+        const networkChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],  // Dátumok (timestamp)
+                datasets: [{
+                    label: 'Küldött Adat (KB/s)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    data: [],
+                    fill: false,
+                    tension: 0.1
+                }, {
+                    label: 'Fogadott Adat (KB/s)',
+                    borderColor: 'rgb(153, 102, 255)',
+                    data: [],
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                animation: {
+                    duration: 500,
+                },
+                scales: {
+                    x: {
+                        type: 'category',  
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Idő',
+                        },
+                        ticks: {
+                            maxTicksLimit: 3,  
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Adat (KB/s)'
+                        }
+                    }
+                }
+            }
+        });
+      
+        // WebSocket üzenetek kezelése
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+      
+            // Átváltás KB/s-ba
+            const bytesSentInKB = data.bytes_sent / 1024; // KB
+            const bytesRecvInKB = data.bytes_recv / 1024; // KB
+      
+            // Csak maximum 30 pontot tartunk meg
+            if (networkChart.data.labels.length >= 10) {
+                networkChart.data.labels.shift(); // Előző időpont eltávolítása
+                networkChart.data.datasets[0].data.shift(); // Előző adat eltávolítása a 'Sent' adatokból
+                networkChart.data.datasets[1].data.shift(); // Előző adat eltávolítása a 'Received' adatokból
+            }
+      
+            // Adatok hozzáadása a grafikonhoz
+            networkChart.data.labels.push(data.timestamp);  // Időpont hozzáadása
+            networkChart.data.datasets[0].data.push(bytesSentInKB);  // Küldött adat hozzáadása
+            networkChart.data.datasets[1].data.push(bytesRecvInKB);  // Fogadott adat hozzáadása
+      
+            // Frissítjük a grafikont
+            networkChart.update();
+        };
+      </script>
+</body>
+</html>

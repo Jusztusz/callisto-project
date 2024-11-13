@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="{% static 'js/test.js' %}"></script>
     <title>Document</title>
+    {% tailwind_css %}
     <style>
         #cpuProgressBarPercent {
             width: 250px;
@@ -34,6 +35,54 @@
             flex-direction: column;
             align-items: center;
         }
+
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 450px;
+            height: 500px;
+            border-radius: 12px;
+        }
+
+        .popup input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .close-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .open-btn {
+            padding: 10px 15px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -56,16 +105,41 @@
             </div>
             <!-- Dashboard -->
             <div class="w-full min-h-[300px] flex ml-6 mt-6">
-                <div class="w-[95%] min-h-[300px] bg-[#ffffff] text-black flex flex-wrap justify-center shadow1 rounded-3xl">
+                <div
+                    class="w-[95%] min-h-[300px] bg-[#ffffff] text-black flex flex-wrap justify-center shadow1 rounded-3xl">
                     <div class="w-full h-8 flex justify-between mt-3 text-xl font-semibold">
                         <div class="w-[56px]"></div>
                         <div>
                             <h2>Elsődleges nézet</h2>
                         </div>
-                        <div>
+                        <div id="primaryEditorContainer">
                             <button id="open-btn"><img src="{% static 'img/edit.png' %}" alt=""
                                     class="h-7 ml-4 mr-4 pt-1"></button>
-                            {% include 'primary_editor.html' %}
+                            <div class="overlay"></div>
+
+                            <div id="popupWindow" class="popup">
+                                <h2>Válassz elemeket</h2>
+                                <div>
+                                    <input type="checkbox" id="checkbox1" value="memoryProgressBarPercent"
+                                        onchange="toggleDivVisibility(this)">
+                                    <label for="checkbox1">Memória - %</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="checkbox2" value="memoryProgressBarMB"
+                                        onchange="toggleDivVisibility(this)">
+                                    <label for="checkbox2">Memória - MB</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="checkbox3" value="cpuProgressBarPercent"
+                                        onchange="toggleDivVisibility(this)">
+                                    <label for="checkbox3">Processzor - %</label>
+                                </div>
+                                <h4>Merevlemez - MB</h4>
+                                <div id="diskContainer" class="pl-3">
+
+                                </div>
+                                <button class="close-btn">Bezárás</button>
+                            </div>
                         </div>
                     </div>
                     <div class="flex justify-center text-center">
@@ -84,15 +158,16 @@
                                 <h2>Processzor</h2>
                             </div>
                         </div>
-                        <div class="flex justify-center text-center">
+                        <div class="flex flex-col justify-center text-center">
+                            <h2 id="mainDiskTitle" class="pb-4">Háttértár</h2>
                             <div id="diskProgressBars">
-                                <h2>Merevlemez</h2>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="w-[95%] h-auto mt-6 ml-6 bg-[#ffffff] text-black flex flex-wrap justify-center shadow1 rounded-3xl">
+            <div
+                class="w-[95%] h-auto mt-6 ml-6 bg-[#ffffff] text-black flex flex-wrap justify-center shadow1 rounded-3xl">
                 <div class="w-full h-auto flex justify-center mt-3 text-xl font-semibold">
                     <div class="w-full">
                         <h2>Statisztikák</h2>
@@ -203,7 +278,9 @@
 
                 //Innen
                 if (data.disk_usages) {
+
                     let disk_usage = data.disk_usages;
+
 
                     const updateDiskUsage = (index, usedMB, totalMB) => {
                         diskBars[`diskProgressBar${index}`].animate(usedMB / totalMB, {
@@ -233,10 +310,15 @@
                             //Ha még nem létezik
                             console.log(`Creating progress bar for disk ${index} with total ${totalMB} MB`);
 
+                            let progressBarTitle = document.createElement('h4')
+                            progressBarTitle.innerText = disk.name
+                            progressBarTitle.style.paddingBottom = '5px'
+                            progressBarTitle.id = `diskProgressBar${index}-title`
                             let progressBarContainer = document.createElement('div');
                             progressBarContainer.id = `diskProgressBar${index}`;
                             progressBarContainer.style.width = '300px';
                             progressBarContainer.style.marginBottom = '20px';
+                            document.getElementById('diskProgressBars').appendChild(progressBarTitle);
                             document.getElementById('diskProgressBars').appendChild(progressBarContainer);
 
                             //Progressbar 
@@ -297,6 +379,143 @@
                 bar.setText(ram_used + ' MB');
             }
         });
+
+    </script>
+
+    <script>
+        const diskContainer = document.getElementById("diskContainer")
+        
+
+        function toggleDiskDivVisibility(checkbox) {
+            const divId = checkbox.value; // Checkbox value, div ID-ja
+            const div = document.getElementById(divId);
+            const title = document.getElementById(divId+"-title");
+            localStorage.setItem(divId, checkbox.checked);
+            const dpb = document.getElementById("diskProgressBars")
+            console.log(dpb.childNodes)
+            div.style.display = checkbox.checked ? 'block' : 'none';
+            title.style.display = checkbox.checked ? 'block' : 'none';
+            const mainDiskTitle = document.getElementById("mainDiskTitle")
+            mainDiskTitle.style.display = "block"
+            let hiddenElement = 0
+            for(let i = 1; i < dpb.childNodes.length; i++){
+                if(dpb.childNodes[i].style.display === "none"){
+                    hiddenElement++
+                }
+            }
+            console.log(hiddenElement)
+            if(hiddenElement === dpb.childNodes.length - 1){
+                mainDiskTitle.style.display = "none"
+            }
+        }
+
+        function loadDiskCheckboxStates() {
+            const checkboxes = document.querySelectorAll('.popup #diskContainer div input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                const divId = checkbox.value;
+                const isChecked = localStorage.getItem(divId) === 'true'; // Ellenőrizzük, hogy a checkbox korábban be volt-e pipálva
+                checkbox.checked = isChecked; // Állítsuk be a checkbox állapotát
+                toggleDiskDivVisibility(checkbox); // Megjelenítjük vagy elrejtjük a megfelelő divet
+            });
+
+        }
+
+        async function loadDiskData() {
+            try {
+                const response = await fetch("get_disks_data");
+
+                // Ensure the response is successful
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const disks = JSON.parse(data.data);  // Parse the disks data
+
+                // Loop through the disks array and create elements
+                for (let i = 0; i < disks.length; i++) {
+                    const div = document.createElement("div");
+                    div.id = `${disks[i].name}-container`;
+
+                    const checkbox = document.createElement("input");
+                    checkbox.value = `diskProgressBar${i}`;
+                    checkbox.type = "checkbox";
+                    checkbox.id = disks[i].name;
+                    checkbox.addEventListener('change', (event) => {
+                        console.log(event.target)
+                        toggleDiskDivVisibility(event.target)
+                    })
+
+                    const label = document.createElement("label");
+                    label.htmlFor = disks[i].name;  // Set htmlFor to checkbox ID
+                    label.textContent = disks[i].name;
+
+                    // Append the checkbox and label to the div
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+
+                    // Append the div to the disk container
+                    const diskContainer = document.getElementById("diskContainer");
+                    diskContainer.appendChild(div);
+
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+            }
+        }
+
+        (async () => {
+            await loadDiskData();
+            loadDiskCheckboxStates()
+        })();
+
+        // Gombok és elemek lekérése
+        const openBtn = document.querySelector('#open-btn');
+        const closeBtn = document.querySelector('.close-btn');
+        const popup = document.querySelector('.popup');
+        const overlay = document.querySelector('.overlay');
+
+        // Nyitás esemény
+        openBtn.addEventListener('click', () => {
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        });
+
+        // Zárás esemény
+        closeBtn.addEventListener('click', () => {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+
+        //Az overlayre kattintva is záródik a popup
+        overlay.addEventListener('click', () => {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+        document.getElementById('cpuProgressBarPercent');
+
+        // ITTEN VAGYOK - Ez csak azért szopás mert nem az a neve mint ami az proges bar holder id
+        function toggleDivVisibility(checkbox) {
+            console.log(checkbox)
+            const divId = checkbox.value; // Checkbox value, div ID-ja
+            const div = document.getElementById(divId);
+            div.style.display = checkbox.checked ? 'block' : 'none';
+            localStorage.setItem(divId, checkbox.checked);
+        }
+
+        //Checkboxok állapotának betöltésébe
+        function loadCheckboxStates() {
+            const checkboxes = document.querySelectorAll('.popup input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                const divId = checkbox.value;
+                const isChecked = localStorage.getItem(divId) === 'true'; // Ellenőrizzük, hogy a checkbox korábban be volt-e pipálva
+                checkbox.checked = isChecked; // Állítsuk be a checkbox állapotát
+                toggleDivVisibility(checkbox); // Megjelenítjük vagy elrejtjük a megfelelő divet
+            });
+        }
+
+        // Betöltjük a checkbox állapotokat a lap betöltésekor
+        window.onload = loadCheckboxStates;
     </script>
 </body>
 

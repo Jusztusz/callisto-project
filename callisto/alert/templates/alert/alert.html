@@ -38,22 +38,26 @@
     <section class="flex w-[98%] min-h-[100vh]">
         {% include 'nav.html' %}
         <section class="ml-52 w-[89%] h-auto bg-[#fff] rounded-3xl border">
+            <div class="w-[98%] min-h-[100vh] bg-[#ffffff] h-min-[800px] mr-6 border-l-[#eaecee] border-2 rounded-t-3xl">
+                <div class="w-full h-20 border-b-[#edeef1] border-b-2">
+                    <h1 class="pt-3 pl-10 text-lg font-semibold">Értesítések</h1>
+                    <i class="pt-3 pl-10 ">Péntek, 2024.10.01</i>
+                </div>
             <section class="bg-[#fff] items-center h-auto rounded-3xl">
-                    <h1 class="ml-6 mt-6 text-3xl">Értesítések kezelése</h1>
-                    <div class="w-[420px] h-[500px] ml-6 mt-6 bg-yellow-400 rounded-3xl border shadow1">
+                    <div class="w-[420px] h-[300px] ml-6 mt-6 bg-[#fff] rounded-3xl border border-[#e2e4e6] shadow1">
                         <form id="telegramForm" action="{% url 'alert' %}" class="ml-3 mt-3">
                             {% csrf_token %}
-                            <h1>Telegram Bot csatolása</h1>
-                            <label for="api_key">API kulcs:</label>
+                            <h1 class="text-2xl">Telegram Bot csatolása</h1>
+                            <h2 class="mt-2">API kulcs</h2>
                             <input type="text" name="api_key" id="api_key" required>
                             <br>
-                            <label for="chat_id">Chat ID:</label>
+                            <h2 class="mt-2">Chat Id</h2>
                             <input type="text" name="chat_id" id="chat_id" required>
                             <br>
-                            <button type="submit">Telegram Mentés</button>
+                            <button type="submit" class="mt-2 w-28 h-10 bg-slate-300 border border-[#e2e4e6] rounded-md">Mentés</button>
                         </form>
                     </div>
-                    <div class="w-[420px] h-[500px] ml-6 mt-6 bg-yellow-400 rounded-3xl border shadow1">
+                    <div class="w-[420px] h-[500px] ml-6 mt-6 bg-[#fff] rounded-3xl border shadow1">
                         <form id="alertForm" method="post" data-url="{% url 'alert' %}" class="ml-3 mt-3">
                             {% csrf_token %}
                             <p class=" text-xl">Értesítés létrehozása</p>
@@ -78,9 +82,9 @@
                             </select>
                             <br>
                             <h2>Üzenet</h2>
-                            <textarea id="alertMessage" name="alertMessage"></textarea>
+                            <textarea id="alertMessage" name="alertMessage" required></textarea>
                             <br>
-                            <input type="submit" value="Mentés">
+                            <input type="submit" value="Mentés" class="mt-2 w-28 h-10 bg-slate-300 border border-[#e2e4e6] rounded-md">
                         </form>
                     </div>
                 <div id="successMessage" style="display: none;">Sikeres mentés!</div>
