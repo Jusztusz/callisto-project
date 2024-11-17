@@ -27,5 +27,5 @@ urlpatterns = [
     path("storage/", include("storage.urls")),
     path("alert/", include("alert.urls")),
     path("ws/network/", include("network.urls")),
-    
+    path("control_panel/", include("control_panel.urls"))
 ]

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'network',
     'tailwind',
     'theme',
+    'control_panel',
     'django_browser_reload',
     'django.contrib.admin',
     'django.contrib.auth',

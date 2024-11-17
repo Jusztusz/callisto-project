@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% load static tailwind_tags %}
+<html lang="en" class="bg-[#0d0d0d]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vezérlőpult</title>
+</head>
+<body>
+    <section class="w-full h-min-[100vh] flex">
+        {% include 'nav.html' %}
+        <div class="ml-52 w-[88%] min-h-[100vh]">
+            <div class="bg-white w-full min-h-[100vh] mt-6 rounded-t-3xl">
+                <div class="w-full h-20 border-b-[#000000] border-b-2">
+                    <h1 class="pt-3 pl-10 text-lg font-semibold">Vezérlőpult</h1>
+                    <i class="pt-3 pl-10 ">Péntek, 2024.10.01</i>
+                </div>
+                <div class="mt-6 w-full h-[600px]">
+                    <div class="ml-6">
+                        <div>
+                            <h1>Felügyelők kapcsolótábla</h1>
+                            <label class="inline-flex items-center cursor-pointer mt-4">
+                                <input type="checkbox" value="" id="toggleCmSwitch" class="sr-only peer" {% if cm_script_running %}checked{% endif %}>
+                                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                <span class="ms-3 text-sm font-medium text-black">Hardver felügyelő</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="inline-flex items-center cursor-pointer mt-4">
+                                <input type="checkbox" value="" class="sr-only peer" id="toggleAlertSwitch" {% if alert_script_running %}checked{% endif %}>
+                                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                <span class="ms-3 text-sm font-medium text-black">Értesítés felügyelő</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        document.getElementById("toggleCmSwitch").addEventListener("change", function () {
+            const url = 'toggle-cm-agent/';
+            const scriptState = this.checked;
+        
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ script_name: 'control_panel/cm_agent.py', state: scriptState })
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        });
+        
+        document.getElementById("toggleAlertSwitch").addEventListener("change", function () {
+            const url = 'toggle-alert-agent/';
+            const scriptState = this.checked;
+        
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ script_name: 'control_panel/alert_agent.py', state: scriptState })
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

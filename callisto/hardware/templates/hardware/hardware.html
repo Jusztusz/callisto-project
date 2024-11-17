@@ -385,9 +385,8 @@
     <script>
         const diskContainer = document.getElementById("diskContainer")
         
-
         function toggleDiskDivVisibility(checkbox) {
-            const divId = checkbox.value; // Checkbox value, div ID-ja
+            const divId = checkbox.value;
             const div = document.getElementById(divId);
             const title = document.getElementById(divId+"-title");
             localStorage.setItem(divId, checkbox.checked);
@@ -413,9 +412,9 @@
             const checkboxes = document.querySelectorAll('.popup #diskContainer div input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 const divId = checkbox.value;
-                const isChecked = localStorage.getItem(divId) === 'true'; // Ellenőrizzük, hogy a checkbox korábban be volt-e pipálva
-                checkbox.checked = isChecked; // Állítsuk be a checkbox állapotát
-                toggleDiskDivVisibility(checkbox); // Megjelenítjük vagy elrejtjük a megfelelő divet
+                const isChecked = localStorage.getItem(divId) === 'true';
+                checkbox.checked = isChecked;
+                toggleDiskDivVisibility(checkbox);
             });
 
         }
@@ -424,15 +423,13 @@
             try {
                 const response = await fetch("get_disks_data");
 
-                // Ensure the response is successful
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                const disks = JSON.parse(data.data);  // Parse the disks data
+                const disks = JSON.parse(data.data);
 
-                // Loop through the disks array and create elements
                 for (let i = 0; i < disks.length; i++) {
                     const div = document.createElement("div");
                     div.id = `${disks[i].name}-container`;
@@ -447,14 +444,12 @@
                     })
 
                     const label = document.createElement("label");
-                    label.htmlFor = disks[i].name;  // Set htmlFor to checkbox ID
+                    label.htmlFor = disks[i].name;
                     label.textContent = disks[i].name;
 
-                    // Append the checkbox and label to the div
                     div.appendChild(checkbox);
                     div.appendChild(label);
 
-                    // Append the div to the disk container
                     const diskContainer = document.getElementById("diskContainer");
                     diskContainer.appendChild(div);
 
