@@ -1,15 +1,13 @@
-python3 -m pip install Django
-python3 -m pip install -U 'channels[daphne]'
-python3 -m pip install channels_redis
-pip install websockets
-pip install websocket-client
-python3 -m pip install django-tailwind
-python3 manage.py tailwind install
-pip install psutil
-pip install django-redis
-pip install aioredis
-apt install redis-server
-pip install psycopg2-binary
-pip install django-environ
-pip install cryptography
-pip install django-login-required-middleware
+Django
+channels[daphne]
+channels_redis
+websockets
+websocket-client
+django-tailwind
+tailwind install
+psutil
+django-redis
+aioredis
+psycopg2-binary
+django-environ
+cryptography
