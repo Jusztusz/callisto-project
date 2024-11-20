@@ -4,7 +4,6 @@ channels_redis
 websockets
 websocket-client
 django-tailwind
-tailwind install
 psutil
 django-redis
 aioredis
