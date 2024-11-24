@@ -1,30 +1,24 @@
 import os
-from django.core.management.utils import get_random_secret_key
+import random
+import string
 
-def generate_env_file():
-    # Titkos kulcs generálása
-    secret_key = get_random_secret_key()
+# Véletlenszerű string generálása
+def generate_secret_key(length=50):
+    chars = string.ascii_letters + string.digits + string.punctuation
+    secret_key = ''.join(random.choice(chars) for _ in range(length))
+    return secret_key
 
-    # A kívánt változók értékei
-    env_vars = {
-        "DJANGO_SECRET_KEY": f"'{secret_key}'",
-        "DB_NAME": "'postgres'",
-        "DB_USER": "'postgres'",
-        "DB_PASSWORD": "'PSQ**1'",
-        "DB_HOST": "'127.0.0.1'",
-        "DB_PORT": "'5432'",
-    }
+# Titkos kulcs létrehozása
+secret_key = generate_secret_key()
 
-    # A .env fájl elérési útja
-    env_file_path = "/app/callisto-project/callisto/callisto/.env"
-    
-    # A .env fájl létrehozása vagy felülírása
-    with open(env_file_path, "w") as f:
-        for key, value in env_vars.items():
-            f.write(f"{key}={value}\n")
+# .env fájl létrehozása és írása
+env_file_path = '/app/callisto-project/callisto/.env'
+with open(env_file_path, 'w') as f:
+    f.write(f"SECRET_KEY='{secret_key}'\n")
+    f.write("DB_NAME='postgres'\n")
+    f.write("DB_USER='postgres'\n")
+    f.write("DB_PASSWORD='PSQ**1'\n")
+    f.write("DB_HOST='127.0.0.1'\n")
+    f.write("DB_PORT='5432'\n")
 
-    print(f".env file generated at {env_file_path}")
-
-# Script futtatása
-if __name__ == "__main__":
-    generate_env_file()
+print(f".env file created with SECRET_KEY: {secret_key}")
