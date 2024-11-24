@@ -12,7 +12,7 @@ def generate_secret_key(length=50):
 secret_key = generate_secret_key()
 
 # .env fájl létrehozása és írása
-env_file_path = '/app/callisto-project/callisto/.env'
+env_file_path = '/app/callisto-project/callisto/callisto/.env'
 with open(env_file_path, 'w') as f:
     f.write(f"SECRET_KEY='{secret_key}'\n")
     f.write("DB_NAME='postgres'\n")
