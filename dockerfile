@@ -18,5 +18,6 @@ RUN /app/venv/bin/pip install --no-cache-dir -r /app/callisto-project/requiremen
 # A Python script futtatása a .env fájl generálásához
 RUN python3 /app/callisto-project/callisto/create_env.py
 
+
 # A Django szerver futtatása a virtuális környezetből
-CMD ["/app/venv/bin/python3", "/app/callisto-project/callisto/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["/app/callisto-project/callisto/wait-for-it.sh db 6969","/app/venv/bin/python3", "/app/callisto-project/callisto/manage.py", "runserver", "0.0.0.0:8000"]
