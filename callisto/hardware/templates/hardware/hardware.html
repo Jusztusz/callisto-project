@@ -159,7 +159,7 @@
                             </div>
                         </div>
                         <div class="flex flex-col justify-center text-center">
-                            <h2 id="mainDiskTitle" class="pb-4">Háttértár</h2>
+                            <h2 id="mainDiskTitle" class="pb-4"></h2>
                             <div id="diskProgressBars">
                             </div>
                         </div>
@@ -309,7 +309,7 @@
                         } else {
                             //Ha még nem létezik
                             console.log(`Creating progress bar for disk ${index} with total ${totalMB} MB`);
-
+                            
                             let progressBarTitle = document.createElement('h4')
                             progressBarTitle.innerText = disk.name
                             progressBarTitle.style.paddingBottom = '5px'
@@ -318,6 +318,8 @@
                             progressBarContainer.id = `diskProgressBar${index}`;
                             progressBarContainer.style.width = '300px';
                             progressBarContainer.style.marginBottom = '20px';
+                            document.getElementById('diskProgressBars').style.display = "none"
+                            document.getElementById('mainDiskTitle').style.display = "none"
                             document.getElementById('diskProgressBars').appendChild(progressBarTitle);
                             document.getElementById('diskProgressBars').appendChild(progressBarContainer);
 
@@ -386,6 +388,8 @@
         const diskContainer = document.getElementById("diskContainer")
         
         function toggleDiskDivVisibility(checkbox) {
+            document.getElementById('diskProgressBars').style.display = "block"
+            document.getElementById('mainDiskTitle').innerHTML = "Háttértár"
             const divId = checkbox.value;
             const div = document.getElementById(divId);
             const title = document.getElementById(divId+"-title");
@@ -428,6 +432,7 @@
                 }
 
                 const data = await response.json();
+
                 const disks = JSON.parse(data.data);
 
                 for (let i = 0; i < disks.length; i++) {

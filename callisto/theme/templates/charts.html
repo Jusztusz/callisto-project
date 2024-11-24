@@ -4,8 +4,8 @@
 </head>
 
 <body>
-    <div class="w-full flex justify-center">
-        <div>
+    <div id="mainChartsHolder" class="w-full flex justify-center">
+        <div id="chartsHolder">
             <select id="timeIntervall" class="w-[200px] ">
             </select>
             <button id="refreshChart" class="mt-4 p-2 bg-blue-500 text-white rounded">Frissítés</button>
@@ -60,6 +60,8 @@
     <script>
 
         const timeIntervallSelect = document.getElementById("timeIntervall");
+        const chartsHolder = document.getElementById("chartsHolder");
+        const mainChartsHolder = document.getElementById("mainChartsHolder");
 
         for (i of graphTimeIntervall) {
             const options = document.createElement("option");
@@ -78,8 +80,17 @@
             let chartTime = JSON.parse(currentTimeValue)
 
             // A Chart.js grafikon inicializálása
-            let cpuData = {{ cpu_data | safe }};
-        let cpu_timestamps = {{ timestamps | safe }}; // Az időpontokat itt kezeljük
+        
+        let cpuData = {{ cpu_data | safe }};
+         
+        if(cpuData.length === 0) {
+            chartsHolder.style.display = "none"
+            mainChartsHolder.innerText = "Nincs megjelenítendő adat"
+        }
+
+        
+        else {
+            let cpu_timestamps = {{ timestamps | safe }}; // Az időpontokat itt kezeljük
         let myChart = new Chart(cpuCtx, {
             type: 'line',
             data: {
@@ -154,7 +165,9 @@
             }
         });
 
+
         const diskUvulvCtx = document.getElementById('diskUvulvChart').getContext('2d');
+
         let disk_uvulv_used_mb = {{ disk_uvulv | safe }};
         let disk_sda2_used_mb = {{ disk_sda2 | safe }};
         let disk_sda1_used_mb = {{ disk_sda1 | safe }};
@@ -413,12 +426,15 @@
                 }
             }
         });
+        
+        
         // Frissítés
         document.getElementById('refreshChart').addEventListener('click', function () {
             let currentTimeValue = timeIntervallSelect.value;
             let chartTime = JSON.parse(currentTimeValue)
             ramChart1.update();
             myChart.update();
+
             fetch(`get_new_data?data=${currentTimeValue}`)
                 .then(response => response.json())
                 .then(data => {
@@ -473,6 +489,8 @@
                 })
                 .catch(error => console.error('Hiba történt:', error));
         });
+        }
+        
         });
     </script>
     <!-- Memória garfikon -->

@@ -3,7 +3,6 @@ import aioredis
 import json
 from django.http import JsonResponse
 import math
-import psutil
 from django.contrib.auth.decorators import login_required
 
 async def fetch_last_n_data(redis_client, timeToSeconds = 60, numberOfPoints=30):
@@ -15,6 +14,10 @@ async def fetch_last_n_data(redis_client, timeToSeconds = 60, numberOfPoints=30)
     disk_usage_sda2_mb = []
     disk_usage_sda1_mb = []
     timestamps = []
+
+    if len(data) < numberOfPoints:
+        return [], [], [], [], [], [], [] 
+
     # Adatok kinyerése másodperc szerint
     for item in data:
         entry = json.loads(item)  # JSON formátum visszaállítása
