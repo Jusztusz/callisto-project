@@ -26,9 +26,6 @@ BOTS_DIR = BASE_DIR / 'bots'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lewcp_b)nvpwk!_xo-m(_hu$_we1(^vh$pvvrnyyr0g%(cssot'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -74,7 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    #'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
 LOGIN_URL = '/'
 CSRF_COOKIE_SECURE = True
