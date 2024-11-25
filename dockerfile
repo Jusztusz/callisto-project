@@ -4,7 +4,10 @@ FROM python:3.10-slim
 # A munkakönyvtár beállítása
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y \
+    git \
+    nginx \
+    && apt-get clean
 
 # A repó klónozása
 RUN git clone https://github.com/Jusztusz/callisto-project.git
@@ -18,6 +21,5 @@ RUN /app/venv/bin/pip install --no-cache-dir -r /app/callisto-project/requiremen
 # A Python script futtatása a .env fájl generálásához
 RUN python3 /app/callisto-project/callisto/create_env.py
 
+RUN cp /app/callisto-project/callisto/nginx.conf /etc/nginx/nginx.conf
 
-# A Django szerver futtatása a virtuális környezetből
-CMD ["/app/callisto-project/callisto/wait-for-it.sh db 6969","/app/venv/bin/python3", "/app/callisto-project/callisto/manage.py", "runserver", "0.0.0.0:8000"]
