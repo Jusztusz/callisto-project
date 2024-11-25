@@ -19,6 +19,6 @@ with open(env_file_path, 'w') as f:
     f.write("DB_USER='postgres'\n")
     f.write("DB_PASSWORD='PSQ**1'\n")
     f.write("DB_HOST='127.0.0.1'\n")
-    f.write("DB_PORT='6969'\n")
+    f.write("DB_PORT='5432'\n")
 
 print(f".env file created with SECRET_KEY: {secret_key}")
