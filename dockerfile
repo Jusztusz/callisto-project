@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # A repó klónozása
-RUN git clone https://github.com/Jusztusz/callisto-project.git
+RUN git clone -b prod --single-branch https://github.com/Jusztusz/callisto-project.git
 
 # Virtuális környezet létrehozása
 RUN python3 -m venv /app/venv
@@ -38,6 +38,7 @@ RUN cp /app/callisto-project/callisto/callisto-nginx /etc/nginx/sites-available
 RUN ln -s /etc/nginx/sites-available/callisto-nginx /etc/nginx/sites-enabled/callisto-nginx
 RUN rm -r /etc/nginx/sites-available/default
 RUN rm -r /etc/nginx/sites-enabled/default
+RUN sed -i 's/^user www-data;/user root;/' /etc/nginx/nginx.conf
 
 # Redis config módosítás
 RUN sed -i 's/# requirepass .*/requirepass callisto2024/' /etc/redis/redis.conf
