@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-contrib \
     redis \
     systemctl \
+    openssh-client \
     && apt-get clean
 
 # A repó klónozása
@@ -35,13 +36,26 @@ RUN service postgresql start && \
 # Nginx konfiguráció másolása
 RUN cp /app/callisto-project/callisto/callisto-nginx /etc/nginx/sites-available
 RUN ln -s /etc/nginx/sites-available/callisto-nginx /etc/nginx/sites-enabled/callisto-nginx
+RUN rm -r /etc/nginx/sites-available/default
+RUN rm -r /etc/nginx/sites-enabled/default
 
 # Redis config módosítás
 RUN sed -i 's/# requirepass .*/requirepass callisto2024/' /etc/redis/redis.conf
+
+# SSH
+USER root
+
+RUN mkdir -p /app/.ssh && \
+    chmod 700 /app/.ssh && \
+    ssh-keygen -t rsa -b 2048 -f /app/.ssh/id_rsa -N "" && \
+    chmod 600 /app/.ssh/id_rsa && \
+    chmod 644 /app/.ssh/id_rsa.pub && \
+    cat /app/.ssh/id_rsa.pub
 
 # PostgreSQL és Django alkalmazás elindítása
 CMD service postgresql start && \
     service redis-server start && \
     service nginx start && \
     /app/venv/bin/python3 /app/callisto-project/callisto/manage.py migrate && \
-    /app/venv/bin/python3 /app/callisto-project/callisto/manage.py runserver 0.0.0.0:8001
+    #/app/venv/bin/python3 /app/callisto-project/callisto/manage.py runserver 0.0.0.0:8001
+    cat /app/.ssh/id_rsa.pub && tail -f /dev/null

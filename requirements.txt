@@ -12,3 +12,4 @@ django-environ
 cryptography
 gunicorn
 uvicorn
+paramiko

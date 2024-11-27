@@ -1,6 +1,6 @@
 import json
 import os
-import subprocess
+import paramiko
 from channels.generic.websocket import WebsocketConsumer
 
 class DataConsumer(WebsocketConsumer):
@@ -38,29 +38,28 @@ class DataConsumer(WebsocketConsumer):
             }))
 
     def get_services(self):
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        services = []
         try:
-            result = subprocess.run(
-                ['systemctl', 'list-unit-files', '--type=service', '--no-pager'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=True
-            )
-            services_output = result.stdout
+            ssh_client.connect('192.168.1.201', username='callisto', password='callisto2024')
+
+            stdin, stdout, stderr = ssh_client.exec_command('systemctl list-unit-files --type=service --no-pager')
+            services_output = stdout.read().decode()
             services_list = services_output.splitlines()
 
-            services = []
             for line in services_list:
                 if not line.strip() or '@' in line:
                     continue
                 parts = line.split()
                 service_name = parts[0]
-
                 services.append({'name': service_name})
 
-        except subprocess.CalledProcessError as e:
-            print(f"Error running command: {e.stderr}")
-            services = []
+        except Exception as e:
+            print(f"Error connecting via SSH: {e}")
+        finally:
+            ssh_client.close()
 
         return services
 
@@ -85,14 +84,18 @@ class DataConsumer(WebsocketConsumer):
             return []
 
     def get_service_status(self, service_name):
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         try:
-            result = subprocess.run(
-                ['systemctl', 'is-active', service_name],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=False
-            )
-            return result.stdout.strip()
-        except subprocess.CalledProcessError:
+            ssh_client.connect('192.168.1.201', username='callisto', password='callisto2024')
+
+            stdin, stdout, stderr = ssh_client.exec_command(f'systemctl is-active {service_name}')
+            status = stdout.read().decode().strip()
+            return status
+
+        except Exception as e:
+            print(f"Error getting status for {service_name}: {e}")
             return 'unknown'
+        finally:
+            ssh_client.close()
