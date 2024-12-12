@@ -33,10 +33,14 @@ SECRET_KEY = 'django-insecure-lewcp_b)nvpwk!_xo-m(_hu$_we1(^vh$pvvrnyyr0g%(cssot
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'thedojo.dev',
     '127.0.0.1',
+    'localhost',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 # Application definition
 
@@ -169,6 +173,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+STATIC_ROOT = "/app/callisto-project/callisto/staticfiles/"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'storage/static')]
 

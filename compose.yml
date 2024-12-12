@@ -1,11 +1,6 @@
 services:
   myservice:
-    image: callisto-project # a saját Docker képed neve
-    volumes:
-      - /var/www:/var/www
+    image: jusztuszxd/callisto-project
     ports:
       - "8001:80"
-      - "8002:22" 
-    environment:
-      - SSH_KEY_GENERATED=true  
-
+      - "8002:22"
