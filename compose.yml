@@ -1,6 +1,6 @@
 services:
   myservice:
-    image: jusztuszxd/callisto-project
+    image: callisto-project
     ports:
-      - "8001:80"
-      - "8002:22"
+      - "8000:80"
+      - "8001:22"

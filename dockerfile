@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # A repó klónozása
-RUN git clone https://github.com/Jusztusz/callisto-project.git
+RUN git clone --branch prod --single-branch https://github.com/Jusztusz/callisto-project.git
 
 # Virtuális környezet létrehozása
 RUN python3 -m venv /app/venv
@@ -28,10 +28,10 @@ RUN /app/venv/bin/pip install --no-cache-dir -r /app/callisto-project/requiremen
 RUN python3 /app/callisto-project/callisto/create_env.py
 
 # Statikus fájlok kezelése
-ENV DJANGO_SETTINGS_MODULE=myproject.settings
+ENV DJANGO_SETTINGS_MODULE=callisto.settings
 ENV PYTHONUNBUFFERED=1
 
-RUN python3 /app/callisto-project/callisto/manage.py collectstatic --noinput
+RUN /app/venv/bin/python /app/callisto-project/callisto/manage.py collectstatic --noinput
 
 # PostgreSQL adatbázis beállítása
 RUN service postgresql start && \
@@ -53,7 +53,7 @@ RUN cp /app/callisto-project/callisto/callisto.service /etc/systemd/system
 RUN sed -i 's/# requirepass .*/requirepass callisto2024/' /etc/redis/redis.conf
 
 # Szolgáltatások indítására
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/callisto-project/entrypoint.sh
 ENTRYPOINT ["/app/callisto-project/entrypoint.sh"]
 
 CMD []
