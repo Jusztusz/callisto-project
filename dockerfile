@@ -46,13 +46,14 @@ RUN rm -r /etc/nginx/sites-available/default
 RUN rm -r /etc/nginx/sites-enabled/default
 RUN sed -i 's/^user www-data;/user root;/' /etc/nginx/nginx.conf
 
+# Callisto service másolása
+RUN cp /app/callisto-project/callisto/callisto.service /etc/systemd/system
+
 # Redis config módosítás
 RUN sed -i 's/# requirepass .*/requirepass callisto2024/' /etc/redis/redis.conf
 
+# Szolgáltatások indítására
+RUN chmod +x /app/entrypoint.sh
+ENTRYPOINT ["/app/callisto-project/entrypoint.sh"]
 
-# PostgreSQL és Django alkalmazás elindítása
-CMD service postgresql start && \
-    service redis-server start && \
-    service nginx start && \
-    /app/venv/bin/python3 /app/callisto-project/callisto/manage.py migrate && \
-    /app/venv/bin/python3 /app/callisto-project/callisto/manage.py runserver 0.0.0.0:8001
+CMD []

@@ -27,7 +27,7 @@ BOTS_DIR = BASE_DIR / 'bots'
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lewcp_b)nvpwk!_xo-m(_hu$_we1(^vh$pvvrnyyr0g%(cssot'
+#SECRET_KEY = 'django-insecure-lewcp_b)nvpwk!_xo-m(_hu$_we1(^vh$pvvrnyyr0g%(cssot'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -66,7 +66,7 @@ TAILWIND_APP_NAME = 'theme'
 
 INTERNAL_IPS = [
     "127.0.0.1",
-    "thedojo.dev",
+    "localhost"
 ]
 
 MIDDLEWARE = [

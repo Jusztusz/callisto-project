@@ -1,0 +1,14 @@
+[Unit]
+Description=Gunicorn ASGI server for Django
+After=network.target
+
+[Service]
+User=devuser
+Group=devuser
+Environment="DJANGO_SETTINGS_MODULE=callisto.settings"
+WorkingDirectory=/app/callisto-project/callisto
+ExecStart=/app/venv/bin/gunicorn callisto.asgi:application -w 3 -k uvicorn.workers.UvicornWorker --bind unix:callisto.sock -m 007
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
